@@ -1,0 +1,37 @@
+# Qt Creator: configuracion personal
+*.pro.user*
+*.qmlproject.user*
+*.qbs.user*
+*.creator.user*
+*.autosave
+.qtc_clangd/
+
+# Carpetas de compilacion
+build*/
+cmake-build-*/
+Debug/
+Release/
+
+# Archivos generados por CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+Testing/
+
+# Archivos compilados de C y C++
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.pdb
+
+# Archivos generados por Qt
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*.moc
