@@ -35,6 +35,15 @@ public:
     void setTexto(const string &texto);
     void setFechaEnvio(const Fecha &fechaEnvio);
     void setLeido(bool leido);
+
+    // Otros métodos
+    void marcarLeido();
+    void mostrar() const;
+
+    // Operadores
+    bool operator<(const Mensaje &otro) const;
+    Mensaje &operator=(const Mensaje &otro);
+    friend ostream &operator<<(ostream &salida, const Mensaje &mensaje);
 };
 
 #endif // MENSAJE_H

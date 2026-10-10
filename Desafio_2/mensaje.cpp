@@ -86,3 +86,43 @@ void Mensaje::setLeido(bool leido)
 {
     this->leido = leido;
 }
+
+
+// Otros métodos
+
+void Mensaje::marcarLeido()
+{
+    leido = true;
+}
+
+void Mensaje::mostrar() const
+{
+    cout << *this << endl;
+}
+
+// Operadores
+
+// Un mensaje es menor si se envió antes
+bool Mensaje::operator<(const Mensaje &otro) const
+{
+    return fechaEnvio < otro.fechaEnvio;
+}
+
+// Copia otro mensaje en este
+Mensaje &Mensaje::operator=(const Mensaje &otro)
+{
+    emisor = otro.emisor;
+    receptor = otro.receptor;
+    texto = otro.texto;
+    fechaEnvio = otro.fechaEnvio;
+    leido = otro.leido;
+    return *this;
+}
+
+// Muestra la fecha, quién lo envió, a quién y el texto
+ostream &operator<<(ostream &salida, const Mensaje &mensaje)
+{
+    salida << mensaje.fechaEnvio << " | de " << mensaje.emisor << " para " << mensaje.receptor << endl;
+    salida << "   " << mensaje.texto;
+    return salida;
+}
