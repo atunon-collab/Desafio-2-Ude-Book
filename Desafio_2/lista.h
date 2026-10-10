@@ -19,6 +19,7 @@ public:
     // Constructores y destructor
     Lista();
     Lista(int capacidadInicial);
+    Lista(const Lista<T> &otra);
     ~Lista();
 
     // Consultas
@@ -31,6 +32,11 @@ public:
     void agregar(const T &elemento);
     bool insertar(int posicion, const T &elemento);
     bool eliminar(int posicion);
+
+    // Operadores
+    T &operator[](int posicion);
+    const T &operator[](int posicion) const;
+    Lista<T> &operator=(const Lista<T> &otra);
 };
 
 
@@ -53,6 +59,18 @@ Lista<T>::Lista(int capacidadInicial)
     capacidad = capacidadInicial;
     cantidad = 0;
     datos = new T[capacidad];
+}
+
+template <typename T>
+Lista<T>::Lista(const Lista<T> &otra)
+{
+    capacidad = otra.capacidad;
+    cantidad = otra.cantidad;
+    datos = new T[capacidad];
+
+    for (int i = 0; i < cantidad; i++) {
+        datos[i] = otra.datos[i];
+    }
 }
 
 template <typename T>
@@ -153,5 +171,39 @@ bool Lista<T>::eliminar(int posicion)
     return true;
 }
 
+
+// Operadores
+
+template <typename T>
+T &Lista<T>::operator[](int posicion)
+{
+    return datos[posicion];
+}
+
+template <typename T>
+const T &Lista<T>::operator[](int posicion) const
+{
+    return datos[posicion];
+}
+
+template <typename T>
+Lista<T> &Lista<T>::operator=(const Lista<T> &otra)
+{
+    if (this == &otra) {
+        return *this;
+    }
+
+    delete[] datos;
+
+    capacidad = otra.capacidad;
+    cantidad = otra.cantidad;
+    datos = new T[capacidad];
+
+    for (int i = 0; i < cantidad; i++) {
+        datos[i] = otra.datos[i];
+    }
+
+    return *this;
+}
 
 #endif // LISTA_H
