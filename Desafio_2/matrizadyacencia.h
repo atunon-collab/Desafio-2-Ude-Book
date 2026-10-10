@@ -16,6 +16,7 @@ public:
     // Constructores y destructor
     MatrizAdyacencia();
     MatrizAdyacencia(int tamanio);
+    MatrizAdyacencia(const MatrizAdyacencia &otra);
     ~MatrizAdyacencia();
 
     // Consultas
@@ -23,10 +24,15 @@ public:
     bool sonAmigos(int a, int b) const;
     int contarAmigos(int usuario) const;
     int contarAmigosEnComun(int a, int b) const;
+    long memoriaUsada() const;
 
     // Modificación
     void redimensionar(int tamanio);
     void agregarAmistad(int a, int b);
+
+    // Operadores
+    bool operator()(int a, int b) const;
+    MatrizAdyacencia &operator=(const MatrizAdyacencia &otra);
 };
 
 #endif // MATRIZADYACENCIA_H
