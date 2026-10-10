@@ -9,7 +9,7 @@ add_executable(Desafio_2 main.cpp
     udeabook.h udeabook.cpp
     usuario.h usuario.cpp
     matrizadyacencia.h matrizadyacencia.cpp
-    lista.h lista.cpp
+    lista.h
     foto.h foto.cpp
     fecha.h fecha.cpp
     mensaje.h mensaje.cpp
