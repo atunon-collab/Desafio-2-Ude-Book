@@ -13,7 +13,8 @@ add_executable(Desafio_2 main.cpp
     foto.h foto.cpp
     fecha.h fecha.cpp
     mensaje.h mensaje.cpp
-    album.h album.cpp)
+    album.h album.cpp
+    contador.h contador.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS Desafio_2
