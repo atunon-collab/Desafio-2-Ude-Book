@@ -18,3 +18,10 @@ long Contador::getIteraciones()
 {
     return iteraciones;
 }
+
+// Muestra las iteraciones contadas
+ostream &operator<<(ostream &salida, const Contador &contador)
+{
+    salida << "Iteraciones: " << contador.getIteraciones();
+    return salida;
+}
