@@ -45,6 +45,7 @@ public:
 
 // Constructores y destructor
 
+// Iteraciones 0
 template <typename T>
 Lista<T>::Lista()
 {
@@ -53,6 +54,7 @@ Lista<T>::Lista()
     datos = new T[capacidad];
 }
 
+// Iteraciones 0
 template <typename T>
 Lista<T>::Lista(int capacidadInicial)
 {
@@ -64,6 +66,8 @@ Lista<T>::Lista(int capacidadInicial)
     datos = new T[capacidad];
 }
 
+// Copia elemento por elemento
+// Iteraciones n, una por elemento
 template <typename T>
 Lista<T>::Lista(const Lista<T> &otra)
 {
@@ -77,6 +81,7 @@ Lista<T>::Lista(const Lista<T> &otra)
     }
 }
 
+// Iteraciones 0
 template <typename T>
 Lista<T>::~Lista()
 {
@@ -84,7 +89,7 @@ Lista<T>::~Lista()
 }
 
 
-// Consultas
+// Consultas, sin ciclos, 0 iteraciones
 
 template <typename T>
 bool Lista<T>::estaVacia() const
@@ -104,15 +109,18 @@ int Lista<T>::getCapacidad() const
     return capacidad;
 }
 
+// Memoria del arreglo medida con sizeof
 template <typename T>
 long Lista<T>::memoriaUsada() const
 {
-    return sizeof(Lista<T>) + capacidad * sizeof(T);
+    return capacidad * sizeof(T);
 }
 
 
 // Métodos privados
 
+// Duplica la capacidad y pasa los elementos al arreglo nuevo
+// Iteraciones n, una por elemento
 template <typename T>
 void Lista<T>::redimensionar()
 {
@@ -132,6 +140,8 @@ void Lista<T>::redimensionar()
 
 // Modificación
 
+// Agrega al final
+// Iteraciones 0, más n de redimensionar si está llena
 template <typename T>
 void Lista<T>::agregar(const T &elemento)
 {
@@ -142,6 +152,8 @@ void Lista<T>::agregar(const T &elemento)
     cantidad++;
 }
 
+// Corre los elementos a la derecha para abrir espacio
+// Iteraciones cantidad menos posicion
 template <typename T>
 bool Lista<T>::insertar(int posicion, const T &elemento)
 {
@@ -162,6 +174,8 @@ bool Lista<T>::insertar(int posicion, const T &elemento)
     return true;
 }
 
+// Corre los elementos a la izquierda para tapar el hueco
+// Iteraciones cantidad menos posicion menos 1
 template <typename T>
 bool Lista<T>::eliminar(int posicion)
 {
@@ -179,6 +193,7 @@ bool Lista<T>::eliminar(int posicion)
 }
 
 // Deja la lista sin elementos, el arreglo se reutiliza
+// Iteraciones 0
 template <typename T>
 void Lista<T>::vaciar()
 {
@@ -188,18 +203,22 @@ void Lista<T>::vaciar()
 
 // Operadores
 
+// Iteraciones 0
 template <typename T>
 T &Lista<T>::operator[](int posicion)
 {
     return datos[posicion];
 }
 
+// Iteraciones 0
 template <typename T>
 const T &Lista<T>::operator[](int posicion) const
 {
     return datos[posicion];
 }
 
+// Copia otra lista en esta
+// Iteraciones n, una por elemento
 template <typename T>
 Lista<T> &Lista<T>::operator=(const Lista<T> &otra)
 {
