@@ -10,7 +10,6 @@ using namespace std;
 class Foto
 {
 private:
-    // Atributos
     string ruta;
     Fecha fechaCaptura;
     int tamanio;
@@ -24,8 +23,8 @@ public:
     ~Foto();
 
     // Getters y setters
-    string getRuta() const;
-    Fecha getFechaCaptura() const;
+    const string &getRuta() const;
+    const Fecha &getFechaCaptura() const;
     int getTamanio() const;
     int getLikes() const;
     void setRuta(const string &ruta);
@@ -34,6 +33,7 @@ public:
     void setLikes(int likes);
 
     // Otros métodos
+    string getNombre() const;
     void darLike();
     void quitarLike();
     void mostrar() const;
@@ -46,3 +46,4 @@ public:
 };
 
 #endif // FOTO_H
+
