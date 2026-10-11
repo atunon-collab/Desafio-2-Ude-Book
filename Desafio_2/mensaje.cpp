@@ -36,23 +36,24 @@ Mensaje::~Mensaje()
 
 
 // Getters y setters
+// Las string y fechas se devuelven por referencia para no copiarlas
 
-string Mensaje::getEmisor() const
+const string &Mensaje::getEmisor() const
 {
     return emisor;
 }
 
-string Mensaje::getReceptor() const
+const string &Mensaje::getReceptor() const
 {
     return receptor;
 }
 
-string Mensaje::getTexto() const
+const string &Mensaje::getTexto() const
 {
     return texto;
 }
 
-Fecha Mensaje::getFechaEnvio() const
+const Fecha &Mensaje::getFechaEnvio() const
 {
     return fechaEnvio;
 }

@@ -18,6 +18,9 @@ private:
     bool leido;
 
 public:
+    // Largo máximo del texto
+    static const int MAX_TEXTO = 512;
+
     // Constructores y destructor
     Mensaje();
     Mensaje(const string &emisor, const string &receptor, const string &texto, const Fecha &fechaEnvio);
@@ -25,10 +28,10 @@ public:
     ~Mensaje();
 
     // Getters y setters
-    string getEmisor() const;
-    string getReceptor() const;
-    string getTexto() const;
-    Fecha getFechaEnvio() const;
+    const string &getEmisor() const;
+    const string &getReceptor() const;
+    const string &getTexto() const;
+    const Fecha &getFechaEnvio() const;
     bool getLeido() const;
     void setEmisor(const string &emisor);
     void setReceptor(const string &receptor);
