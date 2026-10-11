@@ -1,6 +1,8 @@
 #ifndef LISTA_H
 #define LISTA_H
 
+#include "contador.h"
+
 template <typename T>
 class Lista
 {
@@ -32,6 +34,7 @@ public:
     void agregar(const T &elemento);
     bool insertar(int posicion, const T &elemento);
     bool eliminar(int posicion);
+    void vaciar();
 
     // Operadores
     T &operator[](int posicion);
@@ -69,6 +72,7 @@ Lista<T>::Lista(const Lista<T> &otra)
     datos = new T[capacidad];
 
     for (int i = 0; i < cantidad; i++) {
+        Contador::sumar();
         datos[i] = otra.datos[i];
     }
 }
@@ -116,6 +120,7 @@ void Lista<T>::redimensionar()
     T *nuevo = new T[nuevaCapacidad];
 
     for (int i = 0; i < cantidad; i++) {
+        Contador::sumar();
         nuevo[i] = datos[i];
     }
 
@@ -148,6 +153,7 @@ bool Lista<T>::insertar(int posicion, const T &elemento)
     }
 
     for (int i = cantidad; i > posicion; i--) {
+        Contador::sumar();
         datos[i] = datos[i - 1];
     }
 
@@ -164,11 +170,19 @@ bool Lista<T>::eliminar(int posicion)
     }
 
     for (int i = posicion; i < cantidad - 1; i++) {
+        Contador::sumar();
         datos[i] = datos[i + 1];
     }
 
     cantidad--;
     return true;
+}
+
+// Deja la lista sin elementos, el arreglo se reutiliza
+template <typename T>
+void Lista<T>::vaciar()
+{
+    cantidad = 0;
 }
 
 
@@ -200,6 +214,7 @@ Lista<T> &Lista<T>::operator=(const Lista<T> &otra)
     datos = new T[capacidad];
 
     for (int i = 0; i < cantidad; i++) {
+        Contador::sumar();
         datos[i] = otra.datos[i];
     }
 
