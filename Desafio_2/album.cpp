@@ -80,3 +80,52 @@ int Album::getCantidadFotos() const
 {
     return fotos.getCantidad();
 }
+
+
+// Otros métodos
+
+// Público lo ve cualquiera, amigos solo los amigos, privado nadie más
+bool Album::esVisible(bool esAmigo) const
+{
+    if (privacidad == PUBLICO) {
+        return true;
+    }
+    if (privacidad == AMIGOS) {
+        return esAmigo;
+    }
+    return false;
+}
+
+
+// Operadores
+
+// album[i] devuelve la foto i
+Foto &Album::operator[](int posicion)
+{
+    return fotos[posicion];
+}
+
+// Copia otro álbum con sus fotos
+Album &Album::operator=(const Album &otro)
+{
+    nombre = otro.nombre;
+    ruta = otro.ruta;
+    privacidad = otro.privacidad;
+    fotos = otro.fotos;
+    return *this;
+}
+
+// Muestra el nombre, la privacidad y cuántas fotos tiene
+ostream &operator<<(ostream &salida, const Album &album)
+{
+    salida << album.nombre << " (";
+    if (album.privacidad == Album::PUBLICO) {
+        salida << "publico";
+    } else if (album.privacidad == Album::AMIGOS) {
+        salida << "amigos";
+    } else {
+        salida << "privado";
+    }
+    salida << ", " << album.fotos.getCantidad() << " fotos)";
+    return salida;
+}

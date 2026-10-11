@@ -41,6 +41,14 @@ public:
     void agregarFoto(const Foto &foto);
     Foto &getFoto(int posicion);
     int getCantidadFotos() const;
+
+    // Otros métodos
+    bool esVisible(bool esAmigo) const;
+
+    // Operadores
+    Foto &operator[](int posicion);
+    Album &operator=(const Album &otro);
+    friend ostream &operator<<(ostream &salida, const Album &album);
 };
 
 #endif // ALBUM_H
