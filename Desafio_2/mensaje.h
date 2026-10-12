@@ -1,10 +1,52 @@
 #ifndef MENSAJE_H
 #define MENSAJE_H
 
+#include <iostream>
+#include <string>
+#include "fecha.h"
+
+using namespace std;
+
 class Mensaje
 {
+private:
+    // Atributos
+    string emisor;
+    string receptor;
+    string texto;
+    Fecha fechaEnvio;
+    bool leido;
+
 public:
+    // Largo máximo del texto
+    static const int MAX_TEXTO = 512;
+
+    // Constructores y destructor
     Mensaje();
+    Mensaje(const string &emisor, const string &receptor, const string &texto, const Fecha &fechaEnvio);
+    Mensaje(const Mensaje &otro);
+    ~Mensaje();
+
+    // Getters y setters
+    const string &getEmisor() const;
+    const string &getReceptor() const;
+    const string &getTexto() const;
+    const Fecha &getFechaEnvio() const;
+    bool getLeido() const;
+    void setEmisor(const string &emisor);
+    void setReceptor(const string &receptor);
+    void setTexto(const string &texto);
+    void setFechaEnvio(const Fecha &fechaEnvio);
+    void setLeido(bool leido);
+
+    // Otros métodos
+    void marcarLeido();
+    void mostrar() const;
+
+    // Operadores
+    bool operator<(const Mensaje &otro) const;
+    Mensaje &operator=(const Mensaje &otro);
+    friend ostream &operator<<(ostream &salida, const Mensaje &mensaje);
 };
 
 #endif // MENSAJE_H
