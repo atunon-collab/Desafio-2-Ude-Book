@@ -44,6 +44,7 @@ public:
 
     // Otros métodos
     bool esVisible(bool esAmigo) const;
+    void verCarrusel();
 
     // Operadores
     Foto &operator[](int posicion);

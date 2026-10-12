@@ -96,6 +96,39 @@ bool Album::esVisible(bool esAmigo) const
     return false;
 }
 
+// Muestra las fotos una tras otra en círculo
+void Album::verCarrusel()
+{
+    int cantidad = fotos.getCantidad();
+    if (cantidad == 0) {
+        cout << "El album no tiene fotos" << endl;
+        return;
+    }
+
+    int posicion = 0;
+    string opcion = "";
+    while (opcion != "0") {
+        cout << endl << "Album " << nombre << " - foto " << posicion + 1 << " de " << cantidad << endl;
+        cout << fotos[posicion] << endl;
+        cout << "1. Siguiente   2. Previa   3. Dar like   0. Salir del album" << endl;
+        cout << "Opcion: ";
+        getline(cin, opcion);
+
+        if (opcion == "1") {
+            // Después de la última vuelve a la primera
+            posicion = (posicion + 1) % cantidad;
+        } else if (opcion == "2") {
+            // Antes de la primera va a la última
+            posicion = (posicion - 1 + cantidad) % cantidad;
+        } else if (opcion == "3") {
+            ++fotos[posicion];
+            cout << "Like dado" << endl;
+        } else if (opcion != "0") {
+            cout << "Opcion no valida" << endl;
+        }
+    }
+}
+
 
 // Operadores
 
