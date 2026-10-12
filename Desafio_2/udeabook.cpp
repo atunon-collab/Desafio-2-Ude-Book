@@ -2,6 +2,14 @@
 
 // Rutas de las fotos
 const string RUTA_BASE = "/users/udeabook/";
+const string CARPETA_ALBUMES = "/albums/";
+const string FOTO_PERFIL = "profile.png";
+
+// Formato del archivo
+const char SEPARADOR = ';';
+const char MARCA_SECCION = '#';
+const string SECCION_USUARIOS = "#USUARIOS";
+const string SECCION_AMISTADES = "#AMISTADES";
 
 // Valores especiales
 const int SIN_SESION = -1;
@@ -27,9 +35,13 @@ UdeABook::~UdeABook()
 
 // Programa principal
 
-// Muestra el menú de ingreso
+// Carga los datos y muestra el ingreso
 void UdeABook::ejecutar()
 {
+    cout << "Cargando datos..." << endl;
+    if (!cargarDatos()) {
+        return;
+    }
     cout << *this << endl;
 
     int opcion = ENTRADA_INVALIDA;
@@ -51,6 +63,107 @@ void UdeABook::ejecutar()
 }
 
 
+// Carga de datos
+
+// Funcionalidad I, carga de datos
+bool UdeABook::cargarDatos()
+{
+    ifstream archivo(archivoDatos);
+    if (!archivo.is_open()) {
+        cout << "No se pudo abrir el archivo " << archivoDatos << endl;
+        return false;
+    }
+
+    string linea = "";
+    string seccion = "";
+    while (getline(archivo, linea)) {
+        quitarRetorno(linea);
+
+        if (linea.length() > 0 && linea[0] == MARCA_SECCION) {
+            // Encabezado de una sección
+            int posicion = 0;
+            seccion = tomarCampo(linea, posicion);
+            if (seccion == SECCION_USUARIOS) {
+                // El encabezado trae N para crear la matriz
+                int total = convertirEntero(tomarCampo(linea, posicion));
+                amistades.redimensionar(total);
+            }
+        } else if (linea.length() > 0) {
+            if (seccion == SECCION_USUARIOS) {
+                cargarUsuario(linea);
+            } else if (seccion == SECCION_AMISTADES) {
+                cargarAmistad(linea);
+            }
+        }
+    }
+    archivo.close();
+
+    cout << "Datos cargados de " << archivoDatos << endl;
+    return true;
+}
+
+// Quita el fin de línea de Windows si quedó
+void UdeABook::quitarRetorno(string &linea) const
+{
+    if (linea.length() > 0 && linea[linea.length() - 1] == '\r') {
+        linea.erase(linea.length() - 1);
+    }
+}
+
+// Saca el texto que hay hasta el siguiente separador y avanza la posición
+string UdeABook::tomarCampo(const string &linea, int &posicion) const
+{
+    string campo = "";
+    int largo = linea.length();
+    while (posicion < largo && linea[posicion] != SEPARADOR) {
+        campo = campo + linea[posicion];
+        posicion++;
+    }
+    // Salta el separador
+    posicion++;
+    return campo;
+}
+
+// Línea usuario, contraseña, correo, ciudad, país, nacimiento, inscripción
+void UdeABook::cargarUsuario(const string &linea)
+{
+    int posicion = 0;
+    string nombre = tomarCampo(linea, posicion);
+    string contrasena = tomarCampo(linea, posicion);
+    string correo = tomarCampo(linea, posicion);
+    string ciudad = tomarCampo(linea, posicion);
+    string pais = tomarCampo(linea, posicion);
+    Fecha nacimiento;
+    nacimiento.leerTexto(tomarCampo(linea, posicion));
+    Fecha inscripcion;
+    inscripcion.leerTexto(tomarCampo(linea, posicion));
+
+    // La ruta se arma, no se guarda en el archivo
+    string rutaFoto = rutaBase + nombre + CARPETA_ALBUMES + FOTO_PERFIL;
+    Usuario nuevo(nombre, contrasena, correo, ciudad, pais, rutaFoto, nacimiento, inscripcion, usuarios.getCantidad());
+    usuarios.agregar(nuevo);
+}
+
+// Línea con los índices de dos amigos
+void UdeABook::cargarAmistad(const string &linea)
+{
+    int posicion = 0;
+    int a = convertirEntero(tomarCampo(linea, posicion));
+    int b = convertirEntero(tomarCampo(linea, posicion));
+    if (esIndiceValido(a) && esIndiceValido(b)) {
+        amistades.agregarAmistad(a, b);
+    }
+}
+
+
+// Búsqueda
+
+bool UdeABook::esIndiceValido(int indice) const
+{
+    return indice >= 0 && indice < usuarios.getCantidad() && indice < amistades.getTamanio();
+}
+
+
 // Lectura del teclado
 
 // Si se acaba la entrada devuelve 0 para salir de los menús
@@ -60,6 +173,7 @@ string UdeABook::leerLinea() const
     if (!getline(cin, linea)) {
         return "0";
     }
+    quitarRetorno(linea);
     return linea;
 }
 
