@@ -1,7 +1,7 @@
 #include "mensaje.h"
 
 
-// Constructores y destructor
+// Constructores y destructor, sin ciclos, 0 iteraciones
 
 Mensaje::Mensaje()
 {
@@ -35,7 +35,7 @@ Mensaje::~Mensaje()
 }
 
 
-// Getters y setters
+// Getters y setters, sin ciclos, 0 iteraciones
 // Las string y fechas se devuelven por referencia para no copiarlas
 
 const string &Mensaje::getEmisor() const
@@ -89,7 +89,7 @@ void Mensaje::setLeido(bool leido)
 }
 
 
-// Otros métodos
+// Otros métodos, sin ciclos, 0 iteraciones
 
 void Mensaje::marcarLeido()
 {
@@ -101,7 +101,7 @@ void Mensaje::mostrar() const
     cout << *this << endl;
 }
 
-// Operadores
+// Operadores, sin ciclos, 0 iteraciones
 
 // Un mensaje es menor si se envió antes
 bool Mensaje::operator<(const Mensaje &otro) const
