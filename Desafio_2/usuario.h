@@ -6,6 +6,7 @@
 #include "fecha.h"
 #include "lista.h"
 #include "album.h"
+#include "mensaje.h"
 
 using namespace std;
 
@@ -23,6 +24,8 @@ private:
     Fecha fechaInscripcion;
     int indice;
     Lista<Album> albumes;
+    Lista<Mensaje> enviados;
+    Lista<Mensaje> recibidos;
     Lista<int> solicitudes;
 
 public:
@@ -61,6 +64,14 @@ public:
     void agregarAlbum(const Album &album);
     Album &getAlbum(int posicion);
     int getCantidadAlbumes() const;
+
+    // Mensajes
+    void agregarEnviado(const Mensaje &mensaje);
+    void agregarRecibido(const Mensaje &mensaje);
+    Mensaje &getEnviado(int posicion);
+    Mensaje &getRecibido(int posicion);
+    int getCantidadEnviados() const;
+    int getCantidadRecibidos() const;
 
     // Solicitudes de amistad recibidas
     void agregarSolicitud(int emisor);

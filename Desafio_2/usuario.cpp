@@ -2,8 +2,7 @@
 
 const int SIN_INDICE = -1;
 
-Usuario::Usuario()
-{
+Usuario::Usuario(){
     nombreUsuario = "";
     contrasena = "";
     correo = "";
@@ -39,6 +38,8 @@ Usuario::Usuario(const Usuario &otro){
     fechaInscripcion = otro.fechaInscripcion;
     indice = otro.indice;
     albumes = otro.albumes;
+    enviados = otro.enviados;
+    recibidos = otro.recibidos;
     solicitudes = otro.solicitudes;
 }
 
@@ -133,6 +134,30 @@ int Usuario::getCantidadAlbumes() const{
     return albumes.getCantidad();
 }
 
+void Usuario::agregarEnviado(const Mensaje &mensaje){
+    enviados.agregar(mensaje);
+}
+
+void Usuario::agregarRecibido(const Mensaje &mensaje){
+    recibidos.agregar(mensaje);
+}
+
+Mensaje &Usuario::getEnviado(int posicion){
+    return enviados[posicion];
+}
+
+Mensaje &Usuario::getRecibido(int posicion){
+    return recibidos[posicion];
+}
+
+int Usuario::getCantidadEnviados() const{
+    return enviados.getCantidad();
+}
+
+int Usuario::getCantidadRecibidos() const{
+    return recibidos.getCantidad();
+}
+
 void Usuario::agregarSolicitud(int emisor){
     solicitudes.agregar(emisor);
 }
@@ -141,7 +166,6 @@ void Usuario::eliminarSolicitud(int posicion){
     solicitudes.eliminar(posicion);
 }
 
-// Revisa si ese usuario le envió una solicitud
 bool Usuario::tieneSolicitudDe(int emisor) const{
     for (int i = 0; i < solicitudes.getCantidad(); i++) {
         if (solicitudes[i] == emisor) {
@@ -163,7 +187,6 @@ bool Usuario::operator==(const Usuario &otro) const{
     return nombreUsuario == otro.nombreUsuario;
 }
 
-// Copia otro usuario con todas sus listas
 Usuario &Usuario::operator=(const Usuario &otro){
     nombreUsuario = otro.nombreUsuario;
     contrasena = otro.contrasena;
@@ -175,11 +198,14 @@ Usuario &Usuario::operator=(const Usuario &otro){
     fechaInscripcion = otro.fechaInscripcion;
     indice = otro.indice;
     albumes = otro.albumes;
+    enviados = otro.enviados;
+    recibidos = otro.recibidos;
     solicitudes = otro.solicitudes;
     return *this;
 }
 
-ostream &operator<<(ostream &salida, const Usuario &usuario){
+ostream &operator<<(ostream &salida, const Usuario &usuario)
+{
     salida << "Perfil de " << usuario.nombreUsuario << endl;
     salida << "   Ciudad: " << usuario.ciudad << ", " << usuario.pais << endl;
     salida << "   Correo: " << usuario.correo << endl;
