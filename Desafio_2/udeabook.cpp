@@ -4,12 +4,17 @@
 const string RUTA_BASE = "/users/udeabook/";
 const string CARPETA_ALBUMES = "/albums/";
 const string FOTO_PERFIL = "profile.png";
+const string EXTENSION = ".png";
 
 // Formato del archivo
 const char SEPARADOR = ';';
 const char MARCA_SECCION = '#';
 const string SECCION_USUARIOS = "#USUARIOS";
 const string SECCION_AMISTADES = "#AMISTADES";
+const string SECCION_SOLICITUDES = "#SOLICITUDES";
+const string SECCION_MENSAJES = "#MENSAJES";
+const string SECCION_ALBUMES = "#ALBUMES";
+const string LEIDO = "1";
 
 // Valores especiales
 const int SIN_SESION = -1;
@@ -93,6 +98,12 @@ bool UdeABook::cargarDatos()
                 cargarUsuario(linea);
             } else if (seccion == SECCION_AMISTADES) {
                 cargarAmistad(linea);
+            } else if (seccion == SECCION_SOLICITUDES) {
+                cargarSolicitud(linea);
+            } else if (seccion == SECCION_MENSAJES) {
+                cargarMensaje(linea);
+            } else if (seccion == SECCION_ALBUMES) {
+                cargarAlbum(linea, archivo);
             }
         }
     }
@@ -153,6 +164,78 @@ void UdeABook::cargarAmistad(const string &linea)
     if (esIndiceValido(a) && esIndiceValido(b)) {
         amistades.agregarAmistad(a, b);
     }
+}
+
+// Línea con quién envía y quién recibe la solicitud
+void UdeABook::cargarSolicitud(const string &linea)
+{
+    int posicion = 0;
+    int emisor = convertirEntero(tomarCampo(linea, posicion));
+    int receptor = convertirEntero(tomarCampo(linea, posicion));
+    if (esIndiceValido(emisor) && esIndiceValido(receptor)) {
+        usuarios[receptor].agregarSolicitud(emisor);
+    }
+}
+
+// Línea emisor, receptor, fecha, leído y al final el texto
+// El texto va de último para que pueda tener punto y coma
+void UdeABook::cargarMensaje(const string &linea)
+{
+    int posicion = 0;
+    int emisor = convertirEntero(tomarCampo(linea, posicion));
+    int receptor = convertirEntero(tomarCampo(linea, posicion));
+    Fecha fecha;
+    fecha.leerTexto(tomarCampo(linea, posicion));
+    bool leido = tomarCampo(linea, posicion) == LEIDO;
+
+    string texto = "";
+    int largo = linea.length();
+    if (posicion < largo) {
+        texto = linea.substr(posicion);
+    }
+
+    if (esIndiceValido(emisor) && esIndiceValido(receptor)) {
+        Mensaje mensaje(usuarios[emisor].getNombreUsuario(), usuarios[receptor].getNombreUsuario(), texto, fecha);
+        mensaje.setLeido(leido);
+        usuarios[emisor].agregarEnviado(mensaje);
+        usuarios[receptor].agregarRecibido(mensaje);
+    }
+}
+
+// Línea dueño, nombre, privacidad y cantidad de fotos
+// Debajo viene una línea por foto con nombre, fecha, tamaño y likes
+void UdeABook::cargarAlbum(const string &linea, ifstream &archivo)
+{
+    int posicion = 0;
+    int dueno = convertirEntero(tomarCampo(linea, posicion));
+    string nombre = tomarCampo(linea, posicion);
+    string privacidad = tomarCampo(linea, posicion);
+    int cantidadFotos = convertirEntero(tomarCampo(linea, posicion));
+
+    if (!esIndiceValido(dueno) || privacidad.length() == 0) {
+        return;
+    }
+
+    string rutaAlbum = rutaBase + usuarios[dueno].getNombreUsuario() + CARPETA_ALBUMES + nombre;
+    Album album(nombre, rutaAlbum, privacidad[0]);
+
+    string lineaFoto = "";
+    for (int i = 0; i < cantidadFotos; i++) {
+        getline(archivo, lineaFoto);
+        quitarRetorno(lineaFoto);
+
+        int posicionFoto = 0;
+        string nombreFoto = tomarCampo(lineaFoto, posicionFoto);
+        Fecha captura;
+        captura.leerTexto(tomarCampo(lineaFoto, posicionFoto));
+        int tamanio = convertirEntero(tomarCampo(lineaFoto, posicionFoto));
+        int likes = convertirEntero(tomarCampo(lineaFoto, posicionFoto));
+
+        Foto foto(rutaAlbum + "/" + nombreFoto + EXTENSION, captura, tamanio, likes);
+        album.agregarFoto(foto);
+    }
+
+    usuarios[dueno].agregarAlbum(album);
 }
 
 

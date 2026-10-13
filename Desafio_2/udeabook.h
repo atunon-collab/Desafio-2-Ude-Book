@@ -34,6 +34,9 @@ private:
     string tomarCampo(const string &linea, int &posicion) const;
     void cargarUsuario(const string &linea);
     void cargarAmistad(const string &linea);
+    void cargarSolicitud(const string &linea);
+    void cargarMensaje(const string &linea);
+    void cargarAlbum(const string &linea, ifstream &archivo);
 
 public:
     // Constructor y destructor
