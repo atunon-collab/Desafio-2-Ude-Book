@@ -59,7 +59,7 @@ void UdeABook::ejecutar()
         opcion = leerEntero();
 
         if (opcion == 1) {
-            cout << "Inicio de sesion en construccion" << endl;
+            ingresar();
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
         }
@@ -311,6 +311,73 @@ void UdeABook::guardarDatos()
 
     archivo.close();
     cout << "Datos guardados en " << archivoDatos << endl;
+}
+
+
+// Ingreso a la plataforma
+
+// Busca el usuario y revisa la contraseña
+bool UdeABook::iniciarSesion(const string &nombre, const string &contrasena)
+{
+    int indice = buscarUsuario(nombre);
+    if (indice == NO_ENCONTRADO) {
+        return false;
+    }
+    if (!usuarios[indice].verificarContrasena(contrasena)) {
+        return false;
+    }
+    usuarioActual = indice;
+    return true;
+}
+
+void UdeABook::cerrarSesion()
+{
+    usuarioActual = SIN_SESION;
+}
+
+// Funcionalidad II, ingreso a la plataforma
+void UdeABook::ingresar()
+{
+    cout << "Usuario: ";
+    string nombre = leerLinea();
+    cout << "Contrasena: ";
+    string clave = leerLinea();
+
+    if (!iniciarSesion(nombre, clave)) {
+        cout << "Usuario o contrasena incorrectos" << endl;
+        return;
+    }
+
+    cout << endl << "Bienvenido " << usuarios[usuarioActual].getNombreUsuario() << endl;
+    mostrarMenu();
+    cerrarSesion();
+}
+
+
+// Menús
+
+// Menú principal después de iniciar sesión
+void UdeABook::mostrarMenu()
+{
+    int opcion = ENTRADA_INVALIDA;
+    while (opcion != 0) {
+        cout << endl << "===== Menu principal de " << usuarios[usuarioActual].getNombreUsuario() << " =====" << endl;
+        cout << "1. Actualizar fotos de amigos (solo una vez)" << endl;
+        cout << "2. Administrar amistades" << endl;
+        cout << "3. Visitar perfil de un amigo" << endl;
+        cout << "4. Ver sugerencias de amistad" << endl;
+        cout << "5. Administrar mensajes" << endl;
+        cout << "0. Cerrar sesion" << endl;
+        cout << "Opcion: ";
+        opcion = leerEntero();
+
+        if (opcion >= 1 && opcion <= 5) {
+            cout << "Opcion en construccion" << endl;
+        } else if (opcion != 0) {
+            cout << "Opcion no valida" << endl;
+        }
+    }
+    cout << "Sesion cerrada" << endl;
 }
 
 

@@ -39,6 +39,10 @@ private:
     void cargarMensaje(const string &linea);
     void cargarAlbum(const string &linea, ifstream &archivo);
 
+    // Menús
+    void ingresar();
+    void mostrarMenu();
+
 public:
     // Constructor y destructor
     UdeABook(const string &archivoDatos);
@@ -48,6 +52,8 @@ public:
     void ejecutar();
     bool cargarDatos();
     void guardarDatos();
+    bool iniciarSesion(const string &nombre, const string &contrasena);
+    void cerrarSesion();
 
     // Operador
     friend ostream &operator<<(ostream &salida, const UdeABook &plataforma);
