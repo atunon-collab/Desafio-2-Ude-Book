@@ -1,5 +1,12 @@
 #include "album.h"
 
+// Opciones del carrusel
+const string SIGUIENTE = "1";
+const string PREVIA = "2";
+const string LIKE = "3";
+const string SALIR = "0";
+
+
 // Constructores y destructor
 
 Album::Album()
@@ -105,28 +112,45 @@ void Album::verCarrusel()
         return;
     }
 
+    // Guarda si en esta visita ya se le dio like a cada foto
+    bool *conLike = new bool[cantidad];
+    for (int i = 0; i < cantidad; i++) {
+        conLike[i] = false;
+    }
+
     int posicion = 0;
     string opcion = "";
-    while (opcion != "0") {
+    while (opcion != SALIR) {
         cout << endl << "Album " << nombre << " - foto " << posicion + 1 << " de " << cantidad << endl;
         cout << fotos[posicion] << endl;
-        cout << "1. Siguiente   2. Previa   3. Dar like   0. Salir del album" << endl;
+        cout << "1. Siguiente   2. Previa   3. Dar o quitar like   0. Salir del album" << endl;
         cout << "Opcion: ";
-        getline(cin, opcion);
+        if (!getline(cin, opcion)) {
+            opcion = SALIR;
+        }
 
-        if (opcion == "1") {
+        if (opcion == SIGUIENTE) {
             // Después de la última vuelve a la primera
             posicion = (posicion + 1) % cantidad;
-        } else if (opcion == "2") {
+        } else if (opcion == PREVIA) {
             // Antes de la primera va a la última
             posicion = (posicion - 1 + cantidad) % cantidad;
-        } else if (opcion == "3") {
-            ++fotos[posicion];
-            cout << "Like dado" << endl;
-        } else if (opcion != "0") {
+        } else if (opcion == LIKE) {
+            if (conLike[posicion]) {
+                --fotos[posicion];
+                conLike[posicion] = false;
+                cout << "Like quitado" << endl;
+            } else {
+                ++fotos[posicion];
+                conLike[posicion] = true;
+                cout << "Like dado" << endl;
+            }
+        } else if (opcion != SALIR) {
             cout << "Opcion no valida" << endl;
         }
     }
+
+    delete[] conLike;
 }
 
 
