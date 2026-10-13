@@ -1,4 +1,5 @@
 #include "album.h"
+#include "contador.h"
 
 // Opciones del carrusel
 const string SIGUIENTE = "1";
@@ -9,6 +10,7 @@ const string SALIR = "0";
 
 // Constructores y destructor
 
+// Iteraciones 0
 Album::Album()
 {
     nombre = "";
@@ -16,6 +18,7 @@ Album::Album()
     privacidad = PRIVADO;
 }
 
+// Iteraciones 0
 Album::Album(const string &nombre, const string &ruta, char privacidad)
 {
     this->nombre = nombre;
@@ -24,6 +27,7 @@ Album::Album(const string &nombre, const string &ruta, char privacidad)
 }
 
 // Copia el álbum con todas sus fotos
+// Iteraciones n de Lista operator=, una por foto
 Album::Album(const Album &otro)
 {
     nombre = otro.nombre;
@@ -33,12 +37,13 @@ Album::Album(const Album &otro)
 }
 
 // La lista de fotos se libera sola con su destructor
+// Iteraciones 0
 Album::~Album()
 {
 }
 
 
-// Getters y setters
+// Getters y setters, sin ciclos, 0 iteraciones
 
 const string &Album::getNombre() const
 {
@@ -73,16 +78,19 @@ void Album::setPrivacidad(char privacidad)
 
 // Fotos
 
+// Iteraciones 0, más las de Lista agregar si crece
 void Album::agregarFoto(const Foto &foto)
 {
     fotos.agregar(foto);
 }
 
+// Iteraciones 0
 Foto &Album::getFoto(int posicion)
 {
     return fotos[posicion];
 }
 
+// Iteraciones 0
 int Album::getCantidadFotos() const
 {
     return fotos.getCantidad();
@@ -92,6 +100,7 @@ int Album::getCantidadFotos() const
 // Otros métodos
 
 // Público lo ve cualquiera, amigos solo los amigos, privado nadie más
+// Iteraciones 0
 bool Album::esVisible(bool esAmigo) const
 {
     if (privacidad == PUBLICO) {
@@ -104,6 +113,7 @@ bool Album::esVisible(bool esAmigo) const
 }
 
 // Muestra las fotos una tras otra en círculo
+// Iteraciones una por foto más una por cada opción elegida
 void Album::verCarrusel()
 {
     int cantidad = fotos.getCantidad();
@@ -115,12 +125,14 @@ void Album::verCarrusel()
     // Guarda si en esta visita ya se le dio like a cada foto
     bool *conLike = new bool[cantidad];
     for (int i = 0; i < cantidad; i++) {
+        Contador::sumar();
         conLike[i] = false;
     }
 
     int posicion = 0;
     string opcion = "";
     while (opcion != SALIR) {
+        Contador::sumar();
         cout << endl << "Album " << nombre << " - foto " << posicion + 1 << " de " << cantidad << endl;
         cout << fotos[posicion] << endl;
         cout << "1. Siguiente   2. Previa   3. Dar o quitar like   0. Salir del album" << endl;
@@ -153,16 +165,24 @@ void Album::verCarrusel()
     delete[] conLike;
 }
 
+// Memoria del arreglo de fotos
+long Album::memoriaUsada() const
+{
+    return fotos.memoriaUsada();
+}
+
 
 // Operadores
 
 // album[i] devuelve la foto i
+// Iteraciones 0
 Foto &Album::operator[](int posicion)
 {
     return fotos[posicion];
 }
 
 // Copia otro álbum con sus fotos
+// Iteraciones n de Lista operator=, una por foto
 Album &Album::operator=(const Album &otro)
 {
     nombre = otro.nombre;
@@ -173,6 +193,7 @@ Album &Album::operator=(const Album &otro)
 }
 
 // Muestra el nombre, la privacidad y cuántas fotos tiene
+// Iteraciones 0
 ostream &operator<<(ostream &salida, const Album &album)
 {
     salida << album.nombre << " (";
