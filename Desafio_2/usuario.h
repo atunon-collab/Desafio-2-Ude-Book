@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include "fecha.h"
+#include "lista.h"
+#include "album.h"
 
 using namespace std;
 
@@ -20,6 +22,8 @@ private:
     Fecha fechaNacimiento;
     Fecha fechaInscripcion;
     int indice;
+    Lista<Album> albumes;
+    Lista<int> solicitudes;
 
 public:
     // Constructores y destructor
@@ -52,6 +56,18 @@ public:
 
     // Sesión
     bool verificarContrasena(const string &contrasena) const;
+
+    // Álbumes
+    void agregarAlbum(const Album &album);
+    Album &getAlbum(int posicion);
+    int getCantidadAlbumes() const;
+
+    // Solicitudes de amistad recibidas
+    void agregarSolicitud(int emisor);
+    void eliminarSolicitud(int posicion);
+    bool tieneSolicitudDe(int emisor) const;
+    int getSolicitud(int posicion) const;
+    int getCantidadSolicitudes() const;
 
     // Operadores
     bool operator==(const Usuario &otro) const;

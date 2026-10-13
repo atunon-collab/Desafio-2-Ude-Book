@@ -2,7 +2,8 @@
 
 const int SIN_INDICE = -1;
 
-Usuario::Usuario(){
+Usuario::Usuario()
+{
     nombreUsuario = "";
     contrasena = "";
     correo = "";
@@ -37,6 +38,8 @@ Usuario::Usuario(const Usuario &otro){
     fechaNacimiento = otro.fechaNacimiento;
     fechaInscripcion = otro.fechaInscripcion;
     indice = otro.indice;
+    albumes = otro.albumes;
+    solicitudes = otro.solicitudes;
 }
 
 Usuario::~Usuario(){
@@ -114,19 +117,54 @@ void Usuario::setIndice(int indice){
     this->indice = indice;
 }
 
-bool Usuario::verificarContrasena(const string &contrasena) const
-{
+bool Usuario::verificarContrasena(const string &contrasena) const{
     return this->contrasena == contrasena;
 }
 
-bool Usuario::operator==(const Usuario &otro) const
-{
+void Usuario::agregarAlbum(const Album &album){
+    albumes.agregar(album);
+}
+
+Album &Usuario::getAlbum(int posicion){
+    return albumes[posicion];
+}
+
+int Usuario::getCantidadAlbumes() const{
+    return albumes.getCantidad();
+}
+
+void Usuario::agregarSolicitud(int emisor){
+    solicitudes.agregar(emisor);
+}
+
+void Usuario::eliminarSolicitud(int posicion){
+    solicitudes.eliminar(posicion);
+}
+
+// Revisa si ese usuario le envió una solicitud
+bool Usuario::tieneSolicitudDe(int emisor) const{
+    for (int i = 0; i < solicitudes.getCantidad(); i++) {
+        if (solicitudes[i] == emisor) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int Usuario::getSolicitud(int posicion) const{
+    return solicitudes[posicion];
+}
+
+int Usuario::getCantidadSolicitudes() const{
+    return solicitudes.getCantidad();
+}
+
+bool Usuario::operator==(const Usuario &otro) const{
     return nombreUsuario == otro.nombreUsuario;
 }
 
-// Copia otro usuario
-Usuario &Usuario::operator=(const Usuario &otro)
-{
+// Copia otro usuario con todas sus listas
+Usuario &Usuario::operator=(const Usuario &otro){
     nombreUsuario = otro.nombreUsuario;
     contrasena = otro.contrasena;
     correo = otro.correo;
@@ -136,11 +174,12 @@ Usuario &Usuario::operator=(const Usuario &otro)
     fechaNacimiento = otro.fechaNacimiento;
     fechaInscripcion = otro.fechaInscripcion;
     indice = otro.indice;
+    albumes = otro.albumes;
+    solicitudes = otro.solicitudes;
     return *this;
 }
 
-ostream &operator<<(ostream &salida, const Usuario &usuario)
-{
+ostream &operator<<(ostream &salida, const Usuario &usuario){
     salida << "Perfil de " << usuario.nombreUsuario << endl;
     salida << "   Ciudad: " << usuario.ciudad << ", " << usuario.pais << endl;
     salida << "   Correo: " << usuario.correo << endl;
