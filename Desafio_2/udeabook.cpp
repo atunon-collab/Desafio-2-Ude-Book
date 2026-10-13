@@ -17,6 +17,7 @@ const string SECCION_ALBUMES = "#ALBUMES";
 const string LEIDO = "1";
 
 // Valores especiales
+const int NO_ENCONTRADO = -1;
 const int SIN_SESION = -1;
 const int ENTRADA_INVALIDA = -1;
 const int MAX_CIFRAS = 9;
@@ -40,7 +41,7 @@ UdeABook::~UdeABook()
 
 // Programa principal
 
-// Carga los datos y muestra el ingreso
+// Carga, muestra el ingreso y al salir guarda
 void UdeABook::ejecutar()
 {
     cout << "Cargando datos..." << endl;
@@ -64,6 +65,7 @@ void UdeABook::ejecutar()
         }
     }
 
+    guardarDatos();
     cout << "Hasta pronto" << endl;
 }
 
@@ -239,7 +241,100 @@ void UdeABook::cargarAlbum(const string &linea, ifstream &archivo)
 }
 
 
+// Guardado de datos
+
+// Funcionalidad I, actualización del archivo al salir
+// Reescribe todo el archivo con los datos que hay en memoria
+void UdeABook::guardarDatos()
+{
+    ofstream archivo(archivoDatos);
+    if (!archivo.is_open()) {
+        cout << "No se pudo guardar el archivo " << archivoDatos << endl;
+        return;
+    }
+
+    int total = usuarios.getCantidad();
+
+    // Usuarios en orden alfabético
+    archivo << SECCION_USUARIOS << SEPARADOR << total << "\n";
+    for (int i = 0; i < total; i++) {
+        Usuario &usuario = usuarios[i];
+        archivo << usuario.getNombreUsuario() << SEPARADOR << usuario.getContrasena() << SEPARADOR
+                << usuario.getCorreo() << SEPARADOR << usuario.getCiudad() << SEPARADOR
+                << usuario.getPais() << SEPARADOR << usuario.getFechaNacimiento() << SEPARADOR
+                << usuario.getFechaInscripcion() << "\n";
+    }
+
+    // Cada amistad una sola vez, por eso j empieza en i + 1
+    archivo << SECCION_AMISTADES << "\n";
+    for (int i = 0; i < total; i++) {
+        for (int j = i + 1; j < total; j++) {
+            if (amistades(i, j)) {
+                archivo << i << SEPARADOR << j << "\n";
+            }
+        }
+    }
+
+    // Quien envía y quien recibe
+    archivo << SECCION_SOLICITUDES << "\n";
+    for (int i = 0; i < total; i++) {
+        for (int s = 0; s < usuarios[i].getCantidadSolicitudes(); s++) {
+            archivo << usuarios[i].getSolicitud(s) << SEPARADOR << i << "\n";
+        }
+    }
+
+    // Cada mensaje se escribe una vez, desde los enviados de su emisor
+    archivo << SECCION_MENSAJES << "\n";
+    for (int i = 0; i < total; i++) {
+        for (int m = 0; m < usuarios[i].getCantidadEnviados(); m++) {
+            Mensaje &mensaje = usuarios[i].getEnviado(m);
+            int receptor = buscarUsuario(mensaje.getReceptor());
+            archivo << i << SEPARADOR << receptor << SEPARADOR << mensaje.getFechaEnvio() << SEPARADOR
+                    << mensaje.getLeido() << SEPARADOR << mensaje.getTexto() << "\n";
+        }
+    }
+
+    // Álbumes y debajo sus fotos
+    archivo << SECCION_ALBUMES << "\n";
+    for (int i = 0; i < total; i++) {
+        for (int a = 0; a < usuarios[i].getCantidadAlbumes(); a++) {
+            Album &album = usuarios[i].getAlbum(a);
+            archivo << i << SEPARADOR << album.getNombre() << SEPARADOR << album.getPrivacidad()
+                    << SEPARADOR << album.getCantidadFotos() << "\n";
+            for (int f = 0; f < album.getCantidadFotos(); f++) {
+                Foto &foto = album[f];
+                archivo << foto.getNombre() << SEPARADOR << foto.getFechaCaptura() << SEPARADOR
+                        << foto.getTamanio() << SEPARADOR << foto.getLikes() << "\n";
+            }
+        }
+    }
+
+    archivo.close();
+    cout << "Datos guardados en " << archivoDatos << endl;
+}
+
+
 // Búsqueda
+
+// Búsqueda binaria, los usuarios están en orden alfabético
+int UdeABook::buscarUsuario(const string &nombre) const
+{
+    int izquierda = 0;
+    int derecha = usuarios.getCantidad() - 1;
+    while (izquierda <= derecha) {
+        int mitad = (izquierda + derecha) / 2;
+        const string &actual = usuarios[mitad].getNombreUsuario();
+        if (actual == nombre) {
+            return mitad;
+        }
+        if (actual < nombre) {
+            izquierda = mitad + 1;
+        } else {
+            derecha = mitad - 1;
+        }
+    }
+    return NO_ENCONTRADO;
+}
 
 bool UdeABook::esIndiceValido(int indice) const
 {

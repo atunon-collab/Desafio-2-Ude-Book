@@ -22,6 +22,7 @@ private:
     string archivoDatos;
 
     // Búsqueda
+    int buscarUsuario(const string &nombre) const;
     bool esIndiceValido(int indice) const;
 
     // Lectura del teclado
@@ -46,6 +47,7 @@ public:
     // Funcionalidades
     void ejecutar();
     bool cargarDatos();
+    void guardarDatos();
 
     // Operador
     friend ostream &operator<<(ostream &salida, const UdeABook &plataforma);
