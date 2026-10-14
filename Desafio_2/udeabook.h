@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <random>
 #include "lista.h"
 #include "usuario.h"
 #include "matrizadyacencia.h"
@@ -20,6 +21,8 @@ private:
     int usuarioActual;
     string rutaBase;
     string archivoDatos;
+    bool fotosActualizadas;
+    mt19937 generador;
 
     // Búsqueda
     int buscarUsuario(const string &nombre) const;
@@ -42,6 +45,10 @@ private:
     // Menús
     void ingresar();
     void mostrarMenu();
+
+    // Partes de las funcionalidades
+    void mostrarMejoresAmigos();
+    int calcularPeso(int comunes) const;
 
 public:
     // Constructor y destructor

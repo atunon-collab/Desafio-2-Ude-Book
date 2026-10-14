@@ -22,6 +22,14 @@ const int SIN_SESION = -1;
 const int ENTRADA_INVALIDA = -1;
 const int MAX_CIFRAS = 9;
 
+// Mejores amigos, los pesos van por 2 para no usar decimales
+const int FOTOS_AMIGOS = 3;
+const int LIMITE_SIMPLE = 10;
+const int LIMITE_MEDIO = 20;
+const int PESO_SIMPLE = 2;
+const int PESO_MEDIO = 5;
+const int PESO_ALTO = 7;
+
 
 
 // Constructor y destructor
@@ -31,6 +39,11 @@ UdeABook::UdeABook(const string &archivoDatos)
     this->archivoDatos = archivoDatos;
     rutaBase = RUTA_BASE;
     usuarioActual = SIN_SESION;
+    fotosActualizadas = false;
+
+    // Semilla al azar para el generador de la librería random
+    random_device semilla;
+    generador.seed(semilla());
 }
 
 // Las listas y la matriz se liberan solas con sus destructores
@@ -333,9 +346,10 @@ bool UdeABook::iniciarSesion(const string &nombre, const string &contrasena)
 void UdeABook::cerrarSesion()
 {
     usuarioActual = SIN_SESION;
+    fotosActualizadas = false;
 }
 
-// Funcionalidad II, ingreso a la plataforma
+// Funcionalidad II, ingreso y fotos de los mejores amigos
 void UdeABook::ingresar()
 {
     cout << "Usuario: ";
@@ -349,8 +363,90 @@ void UdeABook::ingresar()
     }
 
     cout << endl << "Bienvenido " << usuarios[usuarioActual].getNombreUsuario() << endl;
+    fotosActualizadas = false;
+    mostrarMejoresAmigos();
+
     mostrarMenu();
     cerrarSesion();
+}
+
+// Peso de cada amigo según los amigos en común
+int UdeABook::calcularPeso(int comunes) const
+{
+    if (comunes <= LIMITE_SIMPLE) {
+        return PESO_SIMPLE;
+    }
+    if (comunes <= LIMITE_MEDIO) {
+        return PESO_MEDIO;
+    }
+    return PESO_ALTO;
+}
+
+// Elige 3 amigos al azar según su peso y muestra sus fotos de perfil
+// Cada elegido queda con peso 0 para que no se repita
+void UdeABook::mostrarMejoresAmigos()
+{
+    int total = usuarios.getCantidad();
+    int cantidadAmigos = amistades.contarAmigos(usuarioActual);
+
+    if (cantidadAmigos == 0) {
+        cout << "Aun no tienes amigos para mostrar sus fotos" << endl;
+        return;
+    }
+
+    // Arreglos dinámicos con cada amigo, sus amigos en común y su peso
+    int *amigos = new int[cantidadAmigos];
+    int *comunes = new int[cantidadAmigos];
+    int *pesos = new int[cantidadAmigos];
+    int sumaPesos = 0;
+    int k = 0;
+    for (int j = 0; j < total; j++) {
+        if (amistades(usuarioActual, j)) {
+            amigos[k] = j;
+            comunes[k] = amistades.contarAmigosEnComun(usuarioActual, j);
+            pesos[k] = calcularPeso(comunes[k]);
+            sumaPesos = sumaPesos + pesos[k];
+            k++;
+        }
+    }
+
+    cout << endl << "Fotos de perfil de tus amigos" << endl;
+    int elegidas = 0;
+    int numero = 0;
+    int elegido = 0;
+    int acumulado = 0;
+    while (elegidas < FOTOS_AMIGOS && sumaPesos > 0) {
+
+        // Número al azar entre 0 y sumaPesos - 1
+        uniform_int_distribution<int> azar(0, sumaPesos - 1);
+        numero = azar(generador);
+
+        // Se suman pesos hasta pasar el número, ese es el elegido
+        elegido = 0;
+        acumulado = pesos[0];
+        while (numero >= acumulado) {
+            elegido++;
+            acumulado = acumulado + pesos[elegido];
+        }
+
+        Usuario &amigo = usuarios[amigos[elegido]];
+        cout << elegidas + 1 << ". " << amigo.getNombreUsuario() << " (" << comunes[elegido] << " amigos en comun)" << endl;
+        cout << "   " << amigo.getRutaFotoPerfil() << endl;
+
+        sumaPesos = sumaPesos - pesos[elegido];
+        pesos[elegido] = 0;
+        elegidas++;
+    }
+
+    if (elegidas == 0) {
+        cout << "No hay otras fotos de amigos para mostrar" << endl;
+    } else if (elegidas < FOTOS_AMIGOS) {
+        cout << "No hay mas amigos para completar las " << FOTOS_AMIGOS << " fotos" << endl;
+    }
+
+    delete[] amigos;
+    delete[] comunes;
+    delete[] pesos;
 }
 
 
@@ -362,7 +458,11 @@ void UdeABook::mostrarMenu()
     int opcion = ENTRADA_INVALIDA;
     while (opcion != 0) {
         cout << endl << "===== Menu principal de " << usuarios[usuarioActual].getNombreUsuario() << " =====" << endl;
-        cout << "1. Actualizar fotos de amigos (solo una vez)" << endl;
+        if (fotosActualizadas) {
+            cout << "1. Actualizar fotos de amigos (ya se uso)" << endl;
+        } else {
+            cout << "1. Actualizar fotos de amigos (solo una vez)" << endl;
+        }
         cout << "2. Administrar amistades" << endl;
         cout << "3. Visitar perfil de un amigo" << endl;
         cout << "4. Ver sugerencias de amistad" << endl;
@@ -371,7 +471,14 @@ void UdeABook::mostrarMenu()
         cout << "Opcion: ";
         opcion = leerEntero();
 
-        if (opcion >= 1 && opcion <= 5) {
+        if (opcion == 1) {
+            if (fotosActualizadas) {
+                cout << "Las fotos ya se actualizaron una vez" << endl;
+            } else {
+                fotosActualizadas = true;
+                mostrarMejoresAmigos();
+            }
+        } else if (opcion >= 2 && opcion <= 5) {
             cout << "Opcion en construccion" << endl;
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
