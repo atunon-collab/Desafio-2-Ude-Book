@@ -46,11 +46,13 @@ private:
     // Menús
     void ingresar();
     void mostrarMenu();
+    void administrarAmistades();
 
     // Partes de las funcionalidades
     void mostrarMejoresAmigos(bool actualizar);
     int calcularPeso(int comunes) const;
     bool fueMostrado(int indice) const;
+    bool procesarSolicitud(int destino);
 
 public:
     // Constructor y destructor
@@ -63,6 +65,8 @@ public:
     void guardarDatos();
     bool iniciarSesion(const string &nombre, const string &contrasena);
     void cerrarSesion();
+    void enviarSolicitud(const string &nombre);
+    void gestionarSolicitudes();
 
     // Operador
     friend ostream &operator<<(ostream &salida, const UdeABook &plataforma);

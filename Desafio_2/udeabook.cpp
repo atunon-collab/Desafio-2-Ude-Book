@@ -502,13 +502,120 @@ void UdeABook::mostrarMenu()
                 fotosActualizadas = true;
                 mostrarMejoresAmigos(true);
             }
-        } else if (opcion >= 2 && opcion <= 5) {
+        } else if (opcion == 2) {
+            administrarAmistades();
+        } else if (opcion >= 3 && opcion <= 5) {
             cout << "Opcion en construccion" << endl;
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
         }
     }
     cout << "Sesion cerrada" << endl;
+}
+
+// Submenú de amistades
+void UdeABook::administrarAmistades()
+{
+    int opcion = ENTRADA_INVALIDA;
+    while (opcion != 0) {
+        cout << endl << "----- Administrar amistades -----" << endl;
+        cout << "1. Enviar solicitud de amistad" << endl;
+        cout << "2. Ver solicitudes recibidas (aceptar o rechazar)" << endl;
+        cout << "0. Volver" << endl;
+        cout << "Opcion: ";
+        opcion = leerEntero();
+
+        if (opcion == 1) {
+            cout << "Nombre de usuario: ";
+            string nombre = leerLinea();
+            enviarSolicitud(nombre);
+        } else if (opcion == 2) {
+            gestionarSolicitudes();
+        } else if (opcion != 0) {
+            cout << "Opcion no valida" << endl;
+        }
+    }
+}
+
+
+// Amistades
+
+// Funcionalidad III a, enviar solicitud de amistad
+void UdeABook::enviarSolicitud(const string &nombre)
+{
+    int destino = buscarUsuario(nombre);
+    procesarSolicitud(destino);
+}
+
+// Valida y envía la solicitud
+// No a uno mismo, no a amigos, no repetida, no si esa persona ya nos envió una
+bool UdeABook::procesarSolicitud(int destino)
+{
+    if (destino == NO_ENCONTRADO) {
+        cout << "Ese usuario no existe" << endl;
+        return false;
+    }
+    Usuario &yo = usuarios[usuarioActual];
+    Usuario &otro = usuarios[destino];
+
+    if (otro == yo) {
+        cout << "No puedes enviarte una solicitud a ti mismo" << endl;
+        return false;
+    }
+    if (amistades(usuarioActual, destino)) {
+        cout << "Ya eres amigo de " << otro.getNombreUsuario() << endl;
+        return false;
+    }
+    if (otro.tieneSolicitudDe(usuarioActual)) {
+        cout << "Ya le enviaste una solicitud a " << otro.getNombreUsuario() << endl;
+        return false;
+    }
+    if (yo.tieneSolicitudDe(destino)) {
+        cout << otro.getNombreUsuario() << " ya te envio una solicitud, aceptala en solicitudes recibidas" << endl;
+        return false;
+    }
+
+    otro.agregarSolicitud(usuarioActual);
+    cout << "Solicitud enviada a " << otro.getNombreUsuario() << endl;
+    return true;
+}
+
+// Funcionalidad III b, ver solicitudes recibidas y aceptar o rechazar
+void UdeABook::gestionarSolicitudes()
+{
+    Usuario &yo = usuarios[usuarioActual];
+    int cantidad = yo.getCantidadSolicitudes();
+
+    if (cantidad == 0) {
+        cout << "No tienes solicitudes de amistad pendientes" << endl;
+        return;
+    }
+
+    cout << "Solicitudes recibidas" << endl;
+    for (int i = 0; i < cantidad; i++) {
+        cout << i + 1 << ". " << usuarios[yo.getSolicitud(i)].getNombreUsuario() << endl;
+    }
+
+    cout << "Numero de la solicitud (0 para volver): ";
+    int numero = leerEntero();
+    int accion = 0;
+    if (numero >= 1 && numero <= cantidad) {
+        int emisor = yo.getSolicitud(numero - 1);
+        cout << "1. Aceptar   2. Rechazar: ";
+        accion = leerEntero();
+        if (accion == 1) {
+            amistades.agregarAmistad(usuarioActual, emisor);
+            yo.eliminarSolicitud(numero - 1);
+            cout << "Ahora eres amigo de " << usuarios[emisor].getNombreUsuario() << endl;
+        } else if (accion == 2) {
+            yo.eliminarSolicitud(numero - 1);
+            cout << "Solicitud de " << usuarios[emisor].getNombreUsuario() << " rechazada" << endl;
+        } else {
+            cout << "Opcion no valida" << endl;
+        }
+    } else if (numero != 0) {
+        cout << "Numero no valido" << endl;
+    }
 }
 
 
