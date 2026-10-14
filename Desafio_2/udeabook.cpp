@@ -346,6 +346,7 @@ bool UdeABook::iniciarSesion(const string &nombre, const string &contrasena)
 void UdeABook::cerrarSesion()
 {
     usuarioActual = SIN_SESION;
+    fotosMostradas.vaciar();
     fotosActualizadas = false;
 }
 
@@ -363,8 +364,9 @@ void UdeABook::ingresar()
     }
 
     cout << endl << "Bienvenido " << usuarios[usuarioActual].getNombreUsuario() << endl;
+    fotosMostradas.vaciar();
     fotosActualizadas = false;
-    mostrarMejoresAmigos();
+    mostrarMejoresAmigos(false);
 
     mostrarMenu();
     cerrarSesion();
@@ -382,9 +384,21 @@ int UdeABook::calcularPeso(int comunes) const
     return PESO_ALTO;
 }
 
+// Revisa si el amigo ya salió en las primeras 3 fotos
+bool UdeABook::fueMostrado(int indice) const
+{
+    for (int i = 0; i < fotosMostradas.getCantidad(); i++) {
+        if (fotosMostradas[i] == indice) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Elige 3 amigos al azar según su peso y muestra sus fotos de perfil
 // Cada elegido queda con peso 0 para que no se repita
-void UdeABook::mostrarMejoresAmigos()
+// En la actualización los 3 primeros también quedan en 0
+void UdeABook::mostrarMejoresAmigos(bool actualizar)
 {
     int total = usuarios.getCantidad();
     int cantidadAmigos = amistades.contarAmigos(usuarioActual);
@@ -405,9 +419,16 @@ void UdeABook::mostrarMejoresAmigos()
             amigos[k] = j;
             comunes[k] = amistades.contarAmigosEnComun(usuarioActual, j);
             pesos[k] = calcularPeso(comunes[k]);
+            if (actualizar && fueMostrado(j)) {
+                pesos[k] = 0;
+            }
             sumaPesos = sumaPesos + pesos[k];
             k++;
         }
+    }
+
+    if (!actualizar) {
+        fotosMostradas.vaciar();
     }
 
     cout << endl << "Fotos de perfil de tus amigos" << endl;
@@ -433,6 +454,9 @@ void UdeABook::mostrarMejoresAmigos()
         cout << elegidas + 1 << ". " << amigo.getNombreUsuario() << " (" << comunes[elegido] << " amigos en comun)" << endl;
         cout << "   " << amigo.getRutaFotoPerfil() << endl;
 
+        if (!actualizar) {
+            fotosMostradas.agregar(amigos[elegido]);
+        }
         sumaPesos = sumaPesos - pesos[elegido];
         pesos[elegido] = 0;
         elegidas++;
@@ -476,7 +500,7 @@ void UdeABook::mostrarMenu()
                 cout << "Las fotos ya se actualizaron una vez" << endl;
             } else {
                 fotosActualizadas = true;
-                mostrarMejoresAmigos();
+                mostrarMejoresAmigos(true);
             }
         } else if (opcion >= 2 && opcion <= 5) {
             cout << "Opcion en construccion" << endl;

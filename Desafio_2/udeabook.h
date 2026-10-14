@@ -21,6 +21,7 @@ private:
     int usuarioActual;
     string rutaBase;
     string archivoDatos;
+    Lista<int> fotosMostradas;
     bool fotosActualizadas;
     mt19937 generador;
 
@@ -47,8 +48,9 @@ private:
     void mostrarMenu();
 
     // Partes de las funcionalidades
-    void mostrarMejoresAmigos();
+    void mostrarMejoresAmigos(bool actualizar);
     int calcularPeso(int comunes) const;
+    bool fueMostrado(int indice) const;
 
 public:
     // Constructor y destructor
