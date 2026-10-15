@@ -30,6 +30,10 @@ const int PESO_SIMPLE = 2;
 const int PESO_MEDIO = 5;
 const int PESO_ALTO = 7;
 
+// Sugerencias
+const int K_MINIMO = 1;
+const int K_MAXIMO = 20;
+
 
 
 // Constructor y destructor
@@ -508,7 +512,11 @@ void UdeABook::mostrarMenu()
             cout << "Nombre de usuario del amigo: ";
             string nombre = leerLinea();
             visitarPerfil(nombre);
-        } else if (opcion == 4 || opcion == 5) {
+        } else if (opcion == 4) {
+            cout << "Cuantas sugerencias quieres ver (1 a 20): ";
+            int k = leerEntero();
+            verSugerencias(k);
+        } else if (opcion == 5) {
             cout << "Opcion en construccion" << endl;
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
@@ -676,6 +684,95 @@ void UdeABook::visitarPerfil(const string &nombre)
     }
 
     delete[] visibles;
+}
+
+
+// Sugerencias
+
+// Funcionalidad V, ver K sugerencias de amistad
+// comunes[j] es cuántos amigos tengo en común con j
+void UdeABook::verSugerencias(int k)
+{
+    if (k < K_MINIMO || k > K_MAXIMO) {
+        cout << "K debe estar entre " << K_MINIMO << " y " << K_MAXIMO << endl;
+        return;
+    }
+
+    int total = usuarios.getCantidad();
+    int *comunes = new int[total];
+    for (int j = 0; j < total; j++) {
+        comunes[j] = 0;
+    }
+
+    // Por cada amigo se recorre su fila y se suma 1 a sus amigos que aún no son míos
+    for (int amigo = 0; amigo < total; amigo++) {
+        if (amistades(usuarioActual, amigo)) {
+            for (int j = 0; j < total; j++) {
+                if (amistades(amigo, j) && j != usuarioActual && !amistades(usuarioActual, j)) {
+                    comunes[j]++;
+                }
+            }
+        }
+    }
+
+    // Arreglo pequeño con los K mejores, de mayor a menor
+    int *mejores = new int[k];
+    int cantidadMejores = 0;
+    for (int j = 0; j < total; j++) {
+        bool entra = false;
+        if (comunes[j] > 0) {
+            if (cantidadMejores < k) {
+                entra = true;
+            } else if (comunes[j] > comunes[mejores[k - 1]]) {
+                entra = true;
+            }
+        }
+
+        if (entra) {
+            // Si ya hay K se reemplaza el último
+            int posicion = cantidadMejores;
+            if (cantidadMejores == k) {
+                posicion = k - 1;
+            }
+            // Corre a la derecha los que tienen menos
+            while (posicion > 0 && comunes[j] > comunes[mejores[posicion - 1]]) {
+                mejores[posicion] = mejores[posicion - 1];
+                posicion--;
+            }
+            mejores[posicion] = j;
+            if (cantidadMejores < k) {
+                cantidadMejores++;
+            }
+        }
+    }
+
+    int numero = 0;
+    if (cantidadMejores == 0) {
+        cout << "No hay sugerencias, primero necesitas amigos que tengan otros amigos" << endl;
+    } else {
+        cout << endl << "Sugerencias de amistad" << endl;
+        for (int i = 0; i < cantidadMejores; i++) {
+            int candidato = mejores[i];
+            cout << i + 1 << ". " << usuarios[candidato].getNombreUsuario() << " - " << comunes[candidato] << " amigos en comun";
+            if (usuarios[candidato].tieneSolicitudDe(usuarioActual)) {
+                cout << " (ya le enviaste solicitud)";
+            } else if (usuarios[usuarioActual].tieneSolicitudDe(candidato)) {
+                cout << " (te envio solicitud)";
+            }
+            cout << endl;
+        }
+
+        cout << "Numero de la sugerencia para enviarle solicitud (0 para ninguna): ";
+        numero = leerEntero();
+        if (numero >= 1 && numero <= cantidadMejores) {
+            procesarSolicitud(mejores[numero - 1]);
+        } else if (numero != 0) {
+            cout << "Numero no valido" << endl;
+        }
+    }
+
+    delete[] comunes;
+    delete[] mejores;
 }
 
 
