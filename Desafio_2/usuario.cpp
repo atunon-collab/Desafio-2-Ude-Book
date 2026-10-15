@@ -3,7 +3,6 @@
 
 const int SIN_INDICE = -1;
 
-
 Usuario::Usuario(){
     nombreUsuario = "";
     contrasena = "";
@@ -190,6 +189,7 @@ bool Usuario::marcarEnviadoLeido(const Mensaje &recibido){
     return false;
 }
 
+// Primero búsqueda binaria del primer mensaje desde inicio
 // Iteraciones log2(m) más los encontrados, ejemplo 35 en el rango son 42
 int Usuario::buscarMensajes(const Fecha &inicio, const Fecha &fin) const{
     int izquierda = 0;
@@ -235,6 +235,7 @@ bool Usuario::tieneSolicitudDe(int emisor) const{
     }
     return false;
 }
+
 
 int Usuario::getSolicitud(int posicion) const{
     return solicitudes[posicion];
@@ -285,3 +286,4 @@ ostream &operator<<(ostream &salida, const Usuario &usuario){
     salida << "   En Ude@Book desde " << usuario.fechaInscripcion;
     return salida;
 }
+
