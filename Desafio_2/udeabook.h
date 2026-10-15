@@ -47,6 +47,7 @@ private:
     void ingresar();
     void mostrarMenu();
     void administrarAmistades();
+    void administrarMensajes();
 
     // Partes de las funcionalidades
     void mostrarMejoresAmigos(bool actualizar);
@@ -69,6 +70,9 @@ public:
     void gestionarSolicitudes();
     void visitarPerfil(const string &nombre);
     void verSugerencias(int k);
+    void enviarMensaje(const string &nombreAmigo);
+    void leerNuevosMensajes();
+    void buscarMensajes(const Fecha &inicio, const Fecha &fin);
 
     // Operador
     friend ostream &operator<<(ostream &salida, const UdeABook &plataforma);

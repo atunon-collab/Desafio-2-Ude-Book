@@ -517,7 +517,7 @@ void UdeABook::mostrarMenu()
             int k = leerEntero();
             verSugerencias(k);
         } else if (opcion == 5) {
-            cout << "Opcion en construccion" << endl;
+            administrarMensajes();
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
         }
@@ -543,6 +543,43 @@ void UdeABook::administrarAmistades()
             enviarSolicitud(nombre);
         } else if (opcion == 2) {
             gestionarSolicitudes();
+        } else if (opcion != 0) {
+            cout << "Opcion no valida" << endl;
+        }
+    }
+}
+
+// Submenú de mensajes
+void UdeABook::administrarMensajes()
+{
+    int opcion = ENTRADA_INVALIDA;
+    while (opcion != 0) {
+        cout << endl << "----- Administrar mensajes -----" << endl;
+        cout << "1. Enviar mensaje" << endl;
+        cout << "2. Leer nuevos mensajes" << endl;
+        cout << "3. Buscar mensajes por rango de fecha" << endl;
+        cout << "0. Volver" << endl;
+        cout << "Opcion: ";
+        opcion = leerEntero();
+
+        if (opcion == 1) {
+            cout << "Nombre de usuario del amigo: ";
+            string nombre = leerLinea();
+            enviarMensaje(nombre);
+        } else if (opcion == 2) {
+            leerNuevosMensajes();
+        } else if (opcion == 3) {
+            Fecha inicio;
+            Fecha fin;
+            cout << "Fecha de inicio (dd/mm/aaaa): ";
+            bool inicioValido = inicio.leerTexto(leerLinea());
+            cout << "Fecha de fin (dd/mm/aaaa): ";
+            bool finValido = fin.leerTexto(leerLinea());
+            if (inicioValido && finValido) {
+                buscarMensajes(inicio, fin);
+            } else {
+                cout << "Fecha no valida, usa el formato dd/mm/aaaa" << endl;
+            }
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
         }
@@ -773,6 +810,92 @@ void UdeABook::verSugerencias(int k)
 
     delete[] comunes;
     delete[] mejores;
+}
+
+
+// Mensajes
+
+// Funcionalidad VI a, enviar mensaje a un amigo
+void UdeABook::enviarMensaje(const string &nombreAmigo)
+{
+    int amigo = buscarUsuario(nombreAmigo);
+
+    if (amigo == NO_ENCONTRADO) {
+        cout << "Ese usuario no existe" << endl;
+        return;
+    }
+    if (!amistades(usuarioActual, amigo)) {
+        cout << "Solo puedes enviar mensajes a tus amigos" << endl;
+        return;
+    }
+
+    cout << "Texto del mensaje (maximo " << Mensaje::MAX_TEXTO << " caracteres): ";
+    string texto = leerLinea();
+    int largo = texto.length();
+
+    // Revisa que no sea vacío o solo espacios
+    bool tieneLetras = false;
+    int i = 0;
+    while (i < largo && !tieneLetras) {
+        if (texto[i] != ' ') {
+            tieneLetras = true;
+        }
+        i++;
+    }
+
+    if (!tieneLetras) {
+        cout << "No se puede enviar un mensaje vacio" << endl;
+    } else if (largo > Mensaje::MAX_TEXTO) {
+        cout << "El mensaje tiene " << largo << " caracteres, el maximo es " << Mensaje::MAX_TEXTO << endl;
+    } else {
+        Mensaje mensaje(usuarios[usuarioActual].getNombreUsuario(), usuarios[amigo].getNombreUsuario(), texto, Fecha::hoy());
+        usuarios[usuarioActual].agregarEnviado(mensaje);
+        usuarios[amigo].agregarRecibido(mensaje);
+        cout << "Mensaje enviado a " << usuarios[amigo].getNombreUsuario() << " el " << mensaje.getFechaEnvio() << endl;
+    }
+}
+
+// Funcionalidad VI b, leer nuevos mensajes
+// Muestra los no leídos en orden de fecha y los marca, también la copia del emisor
+void UdeABook::leerNuevosMensajes()
+{
+    Usuario &yo = usuarios[usuarioActual];
+    int cantidad = yo.getCantidadRecibidos();
+    int nuevos = 0;
+    int emisor = 0;
+
+    for (int i = 0; i < cantidad; i++) {
+        Mensaje &mensaje = yo.getRecibido(i);
+        if (!mensaje.getLeido()) {
+            cout << endl << mensaje << endl;
+            mensaje.marcarLeido();
+            emisor = buscarUsuario(mensaje.getEmisor());
+            if (emisor != NO_ENCONTRADO) {
+                usuarios[emisor].marcarEnviadoLeido(mensaje);
+            }
+            nuevos++;
+        }
+    }
+
+    if (nuevos == 0) {
+        cout << "No tienes mensajes nuevos" << endl;
+    } else {
+        cout << endl << "Leiste " << nuevos << " mensajes nuevos" << endl;
+    }
+}
+
+// Funcionalidad VI c, buscar mensajes recibidos por rango de fecha
+void UdeABook::buscarMensajes(const Fecha &inicio, const Fecha &fin)
+{
+    int encontrados = 0;
+
+    if (fin < inicio) {
+        cout << "La fecha de inicio debe ser menor o igual a la fecha de fin" << endl;
+    } else {
+        cout << endl << "Mensajes recibidos entre " << inicio << " y " << fin << endl;
+        encontrados = usuarios[usuarioActual].buscarMensajes(inicio, fin);
+        cout << "Total encontrados: " << encontrados << endl;
+    }
 }
 
 
