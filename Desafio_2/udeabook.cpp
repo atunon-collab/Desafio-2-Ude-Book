@@ -504,7 +504,11 @@ void UdeABook::mostrarMenu()
             }
         } else if (opcion == 2) {
             administrarAmistades();
-        } else if (opcion >= 3 && opcion <= 5) {
+        } else if (opcion == 3) {
+            cout << "Nombre de usuario del amigo: ";
+            string nombre = leerLinea();
+            visitarPerfil(nombre);
+        } else if (opcion == 4 || opcion == 5) {
             cout << "Opcion en construccion" << endl;
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
@@ -616,6 +620,62 @@ void UdeABook::gestionarSolicitudes()
     } else if (numero != 0) {
         cout << "Numero no valido" << endl;
     }
+}
+
+
+// Perfil de un amigo
+
+// Funcionalidad IV, visitar perfil de un amigo
+// Lista sus álbumes públicos o de amigos y abre el carrusel
+void UdeABook::visitarPerfil(const string &nombre)
+{
+    int amigo = buscarUsuario(nombre);
+
+    if (amigo == NO_ENCONTRADO) {
+        cout << "Ese usuario no existe" << endl;
+        return;
+    }
+    if (!amistades(usuarioActual, amigo)) {
+        cout << "Solo puedes visitar el perfil de tus amigos" << endl;
+        return;
+    }
+
+    Usuario &perfil = usuarios[amigo];
+    cout << endl << perfil << endl;
+
+    // Posiciones de los álbumes que un amigo puede ver
+    int totalAlbumes = perfil.getCantidadAlbumes();
+    int *visibles = new int[totalAlbumes];
+    int cantidadVisibles = 0;
+    for (int i = 0; i < totalAlbumes; i++) {
+        if (perfil.getAlbum(i).esVisible(true)) {
+            visibles[cantidadVisibles] = i;
+            cantidadVisibles++;
+        }
+    }
+
+    int opcion = ENTRADA_INVALIDA;
+    if (cantidadVisibles == 0) {
+        cout << "No tiene albumes visibles para ti" << endl;
+        opcion = 0;
+    }
+
+    while (opcion != 0) {
+        cout << endl << "Albumes de " << perfil.getNombreUsuario() << endl;
+        for (int i = 0; i < cantidadVisibles; i++) {
+            cout << i + 1 << ". " << perfil.getAlbum(visibles[i]) << endl;
+        }
+        cout << "Numero del album (0 para salir): ";
+        opcion = leerEntero();
+
+        if (opcion >= 1 && opcion <= cantidadVisibles) {
+            perfil.getAlbum(visibles[opcion - 1]).verCarrusel();
+        } else if (opcion != 0) {
+            cout << "Numero no valido" << endl;
+        }
+    }
+
+    delete[] visibles;
 }
 
 

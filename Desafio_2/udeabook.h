@@ -67,6 +67,7 @@ public:
     void cerrarSesion();
     void enviarSolicitud(const string &nombre);
     void gestionarSolicitudes();
+    void visitarPerfil(const string &nombre);
 
     // Operador
     friend ostream &operator<<(ostream &salida, const UdeABook &plataforma);
