@@ -1,10 +1,84 @@
 #ifndef UDEABOOK_H
 #define UDEABOOK_H
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <random>
+#include "lista.h"
+#include "usuario.h"
+#include "matrizadyacencia.h"
+#include "fecha.h"
+#include "contador.h"
+
+using namespace std;
+
 class UdeABook
 {
+private:
+    // Atributos
+    Lista<Usuario> usuarios;
+    MatrizAdyacencia amistades;
+    int usuarioActual;
+    string rutaBase;
+    string archivoDatos;
+    Lista<int> fotosMostradas;
+    bool fotosActualizadas;
+    mt19937 generador;
+
+    // Búsqueda y medición
+    int buscarUsuario(const string &nombre) const;
+    bool esIndiceValido(int indice) const;
+    long calcularMemoria() const;
+    void mostrarConsumoRecursos(long memoriaLocal) const;
+
+    // Lectura del teclado
+    string leerLinea() const;
+    int leerEntero() const;
+    int convertirEntero(const string &texto) const;
+
+    // Lectura del archivo
+    void quitarRetorno(string &linea) const;
+    string tomarCampo(const string &linea, int &posicion) const;
+    void cargarUsuario(const string &linea);
+    void cargarAmistad(const string &linea);
+    void cargarSolicitud(const string &linea);
+    void cargarMensaje(const string &linea);
+    void cargarAlbum(const string &linea, ifstream &archivo);
+
+    // Menús
+    void ingresar();
+    void mostrarMenu();
+    void administrarAmistades();
+    void administrarMensajes();
+
+    // Partes de las funcionalidades
+    void mostrarMejoresAmigos(bool actualizar);
+    int calcularPeso(int comunes) const;
+    bool fueMostrado(int indice) const;
+    bool procesarSolicitud(int destino);
+
 public:
-    UdeABook();
+    // Constructor y destructor
+    UdeABook(const string &archivoDatos);
+    ~UdeABook();
+
+    // Funcionalidades
+    void ejecutar();
+    bool cargarDatos();
+    void guardarDatos();
+    bool iniciarSesion(const string &nombre, const string &contrasena);
+    void cerrarSesion();
+    void enviarSolicitud(const string &nombre);
+    void gestionarSolicitudes();
+    void visitarPerfil(const string &nombre);
+    void verSugerencias(int k);
+    void enviarMensaje(const string &nombreAmigo);
+    void leerNuevosMensajes();
+    void buscarMensajes(const Fecha &inicio, const Fecha &fin);
+
+    // Operador
+    friend ostream &operator<<(ostream &salida, const UdeABook &plataforma);
 };
 
 #endif // UDEABOOK_H
