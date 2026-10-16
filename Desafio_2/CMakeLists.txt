@@ -18,6 +18,9 @@ add_executable(Desafio_2 main.cpp
     album.h album.cpp
     contador.h contador.cpp)
 
+# Ruta del archivo de datos para que funcione desde Qt Creator
+target_compile_definitions(Desafio_2 PRIVATE RUTA_DATOS="${CMAKE_CURRENT_SOURCE_DIR}/datos/udeabook.txt")
+
 include(GNUInstallDirs)
 install(TARGETS Desafio_2
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
