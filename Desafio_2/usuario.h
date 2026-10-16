@@ -72,6 +72,8 @@ public:
     Mensaje &getRecibido(int posicion);
     int getCantidadEnviados() const;
     int getCantidadRecibidos() const;
+    bool marcarEnviadoLeido(const Mensaje &recibido);
+    int buscarMensajes(const Fecha &inicio, const Fecha &fin) const;
 
     // Solicitudes de amistad recibidas
     void agregarSolicitud(int emisor);
@@ -79,6 +81,9 @@ public:
     bool tieneSolicitudDe(int emisor) const;
     int getSolicitud(int posicion) const;
     int getCantidadSolicitudes() const;
+
+    // Memoria
+    long memoriaUsada() const;
 
     // Operadores
     bool operator==(const Usuario &otro) const;
