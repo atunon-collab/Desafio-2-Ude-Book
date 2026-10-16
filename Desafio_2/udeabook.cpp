@@ -38,6 +38,7 @@ const int K_MAXIMO = 20;
 
 // Constructor y destructor
 
+// Iteraciones 0
 UdeABook::UdeABook(const string &archivoDatos)
 {
     this->archivoDatos = archivoDatos;
@@ -51,6 +52,7 @@ UdeABook::UdeABook(const string &archivoDatos)
 }
 
 // Las listas y la matriz se liberan solas con sus destructores
+// Iteraciones 0
 UdeABook::~UdeABook()
 {
 }
@@ -59,6 +61,7 @@ UdeABook::~UdeABook()
 // Programa principal
 
 // Carga, muestra el ingreso y al salir guarda
+// El menú no suma iteraciones, cada funcionalidad se mide sola
 void UdeABook::ejecutar()
 {
     cout << "Cargando datos..." << endl;
@@ -92,6 +95,7 @@ void UdeABook::ejecutar()
 // Carga de datos
 
 // Funcionalidad I, carga de datos
+// Iteraciones casi todas de crear la matriz, ejemplo 1000 usuarios son más de 1000000
 bool UdeABook::cargarDatos()
 {
     ifstream archivo(archivoDatos);
@@ -138,6 +142,7 @@ bool UdeABook::cargarDatos()
 }
 
 // Quita el fin de línea de Windows si quedó
+// Iteraciones 0
 void UdeABook::quitarRetorno(string &linea) const
 {
     if (linea.length() > 0 && linea[linea.length() - 1] == '\r') {
@@ -146,6 +151,7 @@ void UdeABook::quitarRetorno(string &linea) const
 }
 
 // Saca el texto que hay hasta el siguiente separador y avanza la posición
+// Iteraciones una por letra, ejemplo Medellin son 8
 string UdeABook::tomarCampo(const string &linea, int &posicion) const
 {
     string campo = "";
@@ -161,6 +167,7 @@ string UdeABook::tomarCampo(const string &linea, int &posicion) const
 }
 
 // Línea usuario, contraseña, correo, ciudad, país, nacimiento, inscripción
+// Iteraciones las de tomarCampo y leerTexto
 void UdeABook::cargarUsuario(const string &linea)
 {
     int posicion = 0;
@@ -181,6 +188,7 @@ void UdeABook::cargarUsuario(const string &linea)
 }
 
 // Línea con los índices de dos amigos
+// Iteraciones las de tomarCampo
 void UdeABook::cargarAmistad(const string &linea)
 {
     int posicion = 0;
@@ -192,6 +200,7 @@ void UdeABook::cargarAmistad(const string &linea)
 }
 
 // Línea con quién envía y quién recibe la solicitud
+// Iteraciones las de tomarCampo
 void UdeABook::cargarSolicitud(const string &linea)
 {
     int posicion = 0;
@@ -204,6 +213,7 @@ void UdeABook::cargarSolicitud(const string &linea)
 
 // Línea emisor, receptor, fecha, leído y al final el texto
 // El texto va de último para que pueda tener punto y coma
+// Iteraciones las de tomarCampo, leerTexto y agregar en las listas
 void UdeABook::cargarMensaje(const string &linea)
 {
     int posicion = 0;
@@ -229,6 +239,7 @@ void UdeABook::cargarMensaje(const string &linea)
 
 // Línea dueño, nombre, privacidad y cantidad de fotos
 // Debajo viene una línea por foto con nombre, fecha, tamaño y likes
+// Iteraciones una por foto más las de tomarCampo y leerTexto
 void UdeABook::cargarAlbum(const string &linea, ifstream &archivo)
 {
     int posicion = 0;
@@ -269,6 +280,7 @@ void UdeABook::cargarAlbum(const string &linea, ifstream &archivo)
 
 // Funcionalidad I, actualización del archivo al salir
 // Reescribe todo el archivo con los datos que hay en memoria
+// Iteraciones casi todas de recorrer la matriz, ejemplo 1000 usuarios son unas 500000
 void UdeABook::guardarDatos()
 {
     ofstream archivo(archivoDatos);
@@ -349,6 +361,7 @@ void UdeABook::guardarDatos()
 // Ingreso a la plataforma
 
 // Busca el usuario y revisa la contraseña
+// Iteraciones las de buscarUsuario, unas 10 con 1000 usuarios
 bool UdeABook::iniciarSesion(const string &nombre, const string &contrasena)
 {
     int indice = buscarUsuario(nombre);
@@ -362,6 +375,7 @@ bool UdeABook::iniciarSesion(const string &nombre, const string &contrasena)
     return true;
 }
 
+// Iteraciones 0, más las de Lista vaciar
 void UdeABook::cerrarSesion()
 {
     usuarioActual = SIN_SESION;
@@ -370,6 +384,7 @@ void UdeABook::cerrarSesion()
 }
 
 // Funcionalidad II, ingreso y fotos de los mejores amigos
+// Iteraciones unas 32000 con 1000 usuarios y 30 amigos
 void UdeABook::ingresar()
 {
     cout << "Usuario: ";
@@ -394,6 +409,7 @@ void UdeABook::ingresar()
 }
 
 // Peso de cada amigo según los amigos en común
+// Iteraciones 0
 int UdeABook::calcularPeso(int comunes) const
 {
     if (comunes <= LIMITE_SIMPLE) {
@@ -406,6 +422,7 @@ int UdeABook::calcularPeso(int comunes) const
 }
 
 // Revisa si el amigo ya salió en las primeras 3 fotos
+// Iteraciones 3 como máximo
 bool UdeABook::fueMostrado(int indice) const
 {
     for (int i = 0; i < fotosMostradas.getCantidad(); i++) {
@@ -421,6 +438,7 @@ bool UdeABook::fueMostrado(int indice) const
 // Cada elegido queda con peso 0 para que no se repita
 // En la actualización los 3 primeros también quedan en 0
 // Al final muestra el consumo de recursos
+// Iteraciones f x n, ejemplo 30 amigos y 1000 usuarios son unas 32000
 void UdeABook::mostrarMejoresAmigos(bool actualizar)
 {
     int total = usuarios.getCantidad();
@@ -505,7 +523,7 @@ void UdeABook::mostrarMejoresAmigos(bool actualizar)
 }
 
 
-// Menús
+// Menús, no suman iteraciones
 
 // Menú principal después de iniciar sesión
 void UdeABook::mostrarMenu()
@@ -625,6 +643,7 @@ void UdeABook::administrarMensajes()
 // Amistades
 
 // Funcionalidad III a, enviar solicitud de amistad
+// Iteraciones pocas, unas 10 para buscar el usuario
 void UdeABook::enviarSolicitud(const string &nombre)
 {
     int destino = buscarUsuario(nombre);
@@ -634,6 +653,7 @@ void UdeABook::enviarSolicitud(const string &nombre)
 
 // Valida y envía la solicitud
 // No a uno mismo, no a amigos, no repetida, no si esa persona ya nos envió una
+// Iteraciones una por cada solicitud revisada
 bool UdeABook::procesarSolicitud(int destino)
 {
     if (destino == NO_ENCONTRADO) {
@@ -666,6 +686,7 @@ bool UdeABook::procesarSolicitud(int destino)
 }
 
 // Funcionalidad III b, ver solicitudes recibidas y aceptar o rechazar
+// Iteraciones una por solicitud, ejemplo 4 solicitudes son 4
 void UdeABook::gestionarSolicitudes()
 {
     Usuario &yo = usuarios[usuarioActual];
@@ -712,6 +733,7 @@ void UdeABook::gestionarSolicitudes()
 
 // Funcionalidad IV, visitar perfil de un amigo
 // Lista sus álbumes públicos o de amigos y abre el carrusel
+// Iteraciones una por álbum y una por cada opción del carrusel
 void UdeABook::visitarPerfil(const string &nombre)
 {
     int amigo = buscarUsuario(nombre);
@@ -774,6 +796,7 @@ void UdeABook::visitarPerfil(const string &nombre)
 
 // Funcionalidad V, ver K sugerencias de amistad
 // comunes[j] es cuántos amigos tengo en común con j
+// Iteraciones f x n, ejemplo 30 amigos y 1000 usuarios son unas 33000
 void UdeABook::verSugerencias(int k)
 {
     if (k < K_MINIMO || k > K_MAXIMO) {
@@ -871,6 +894,7 @@ void UdeABook::verSugerencias(int k)
 // Mensajes
 
 // Funcionalidad VI a, enviar mensaje a un amigo
+// Iteraciones pocas, unas 10 para buscar el amigo
 void UdeABook::enviarMensaje(const string &nombreAmigo)
 {
     int amigo = buscarUsuario(nombreAmigo);
@@ -918,6 +942,7 @@ void UdeABook::enviarMensaje(const string &nombreAmigo)
 
 // Funcionalidad VI b, leer nuevos mensajes
 // Muestra los no leídos en orden de fecha y los marca, también la copia del emisor
+// Iteraciones una por mensaje recibido, ejemplo 88 mensajes son unas 130
 void UdeABook::leerNuevosMensajes()
 {
     Usuario &yo = usuarios[usuarioActual];
@@ -949,6 +974,7 @@ void UdeABook::leerNuevosMensajes()
 }
 
 // Funcionalidad VI c, buscar mensajes recibidos por rango de fecha
+// Iteraciones pocas por la búsqueda binaria, ejemplo 35 mensajes en el rango son 42
 void UdeABook::buscarMensajes(const Fecha &inicio, const Fecha &fin)
 {
     int encontrados = 0;
@@ -968,6 +994,7 @@ void UdeABook::buscarMensajes(const Fecha &inicio, const Fecha &fin)
 // Búsqueda y medición
 
 // Búsqueda binaria, los usuarios están en orden alfabético
+// Iteraciones log2(n), ejemplo 1000 usuarios son 10
 int UdeABook::buscarUsuario(const string &nombre) const
 {
     int izquierda = 0;
@@ -988,12 +1015,14 @@ int UdeABook::buscarUsuario(const string &nombre) const
     return NO_ENCONTRADO;
 }
 
+// Iteraciones 0
 bool UdeABook::esIndiceValido(int indice) const
 {
     return indice >= 0 && indice < usuarios.getCantidad() && indice < amistades.getTamanio();
 }
 
 // Suma con sizeof la memoria de todas las estructuras
+// Su ciclo no suma iteraciones porque es parte de la medición
 long UdeABook::calcularMemoria() const
 {
     long memoria = sizeof(UdeABook) + amistades.memoriaUsada() + usuarios.memoriaUsada();
@@ -1017,6 +1046,7 @@ void UdeABook::mostrarConsumoRecursos(long memoriaLocal) const
 // Lectura del teclado
 
 // Si se acaba la entrada devuelve 0 para salir de los menús
+// Iteraciones 0
 string UdeABook::leerLinea() const
 {
     string linea = "";
@@ -1027,12 +1057,14 @@ string UdeABook::leerLinea() const
     return linea;
 }
 
+// Iteraciones las de convertirEntero
 int UdeABook::leerEntero() const
 {
     return convertirEntero(leerLinea());
 }
 
 // Convierte un texto de dígitos en número, si no se puede devuelve -1
+// Iteraciones una por dígito, ejemplo 1000 son 4
 int UdeABook::convertirEntero(const string &texto) const
 {
     int largo = texto.length();
@@ -1055,6 +1087,7 @@ int UdeABook::convertirEntero(const string &texto) const
 // Operador
 
 // Muestra cuántos usuarios hay en la plataforma
+// Iteraciones 0
 ostream &operator<<(ostream &salida, const UdeABook &plataforma)
 {
     salida << "Ude@Book tiene " << plataforma.usuarios.getCantidad() << " usuarios registrados";
