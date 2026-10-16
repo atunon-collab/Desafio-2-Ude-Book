@@ -9,6 +9,7 @@
 #include "usuario.h"
 #include "matrizadyacencia.h"
 #include "fecha.h"
+#include "contador.h"
 
 using namespace std;
 
@@ -25,9 +26,11 @@ private:
     bool fotosActualizadas;
     mt19937 generador;
 
-    // Búsqueda
+    // Búsqueda y medición
     int buscarUsuario(const string &nombre) const;
     bool esIndiceValido(int indice) const;
+    long calcularMemoria() const;
+    void mostrarConsumoRecursos(long memoriaLocal) const;
 
     // Lectura del teclado
     string leerLinea() const;

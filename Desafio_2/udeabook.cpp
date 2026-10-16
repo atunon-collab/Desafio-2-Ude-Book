@@ -62,6 +62,7 @@ UdeABook::~UdeABook()
 void UdeABook::ejecutar()
 {
     cout << "Cargando datos..." << endl;
+    Contador::reiniciar();
     if (!cargarDatos()) {
         return;
     }
@@ -82,6 +83,7 @@ void UdeABook::ejecutar()
         }
     }
 
+    Contador::reiniciar();
     guardarDatos();
     cout << "Hasta pronto" << endl;
 }
@@ -101,6 +103,7 @@ bool UdeABook::cargarDatos()
     string linea = "";
     string seccion = "";
     while (getline(archivo, linea)) {
+        Contador::sumar();
         quitarRetorno(linea);
 
         if (linea.length() > 0 && linea[0] == MARCA_SECCION) {
@@ -129,6 +132,8 @@ bool UdeABook::cargarDatos()
     archivo.close();
 
     cout << "Datos cargados de " << archivoDatos << endl;
+    cout << "Componente externo: <fstream>" << endl;
+    mostrarConsumoRecursos(sizeof(linea) + sizeof(seccion));
     return true;
 }
 
@@ -146,6 +151,7 @@ string UdeABook::tomarCampo(const string &linea, int &posicion) const
     string campo = "";
     int largo = linea.length();
     while (posicion < largo && linea[posicion] != SEPARADOR) {
+        Contador::sumar();
         campo = campo + linea[posicion];
         posicion++;
     }
@@ -240,6 +246,7 @@ void UdeABook::cargarAlbum(const string &linea, ifstream &archivo)
 
     string lineaFoto = "";
     for (int i = 0; i < cantidadFotos; i++) {
+        Contador::sumar();
         getline(archivo, lineaFoto);
         quitarRetorno(lineaFoto);
 
@@ -275,6 +282,7 @@ void UdeABook::guardarDatos()
     // Usuarios en orden alfabético
     archivo << SECCION_USUARIOS << SEPARADOR << total << "\n";
     for (int i = 0; i < total; i++) {
+        Contador::sumar();
         Usuario &usuario = usuarios[i];
         archivo << usuario.getNombreUsuario() << SEPARADOR << usuario.getContrasena() << SEPARADOR
                 << usuario.getCorreo() << SEPARADOR << usuario.getCiudad() << SEPARADOR
@@ -286,6 +294,7 @@ void UdeABook::guardarDatos()
     archivo << SECCION_AMISTADES << "\n";
     for (int i = 0; i < total; i++) {
         for (int j = i + 1; j < total; j++) {
+            Contador::sumar();
             if (amistades(i, j)) {
                 archivo << i << SEPARADOR << j << "\n";
             }
@@ -296,6 +305,7 @@ void UdeABook::guardarDatos()
     archivo << SECCION_SOLICITUDES << "\n";
     for (int i = 0; i < total; i++) {
         for (int s = 0; s < usuarios[i].getCantidadSolicitudes(); s++) {
+            Contador::sumar();
             archivo << usuarios[i].getSolicitud(s) << SEPARADOR << i << "\n";
         }
     }
@@ -304,6 +314,7 @@ void UdeABook::guardarDatos()
     archivo << SECCION_MENSAJES << "\n";
     for (int i = 0; i < total; i++) {
         for (int m = 0; m < usuarios[i].getCantidadEnviados(); m++) {
+            Contador::sumar();
             Mensaje &mensaje = usuarios[i].getEnviado(m);
             int receptor = buscarUsuario(mensaje.getReceptor());
             archivo << i << SEPARADOR << receptor << SEPARADOR << mensaje.getFechaEnvio() << SEPARADOR
@@ -315,10 +326,12 @@ void UdeABook::guardarDatos()
     archivo << SECCION_ALBUMES << "\n";
     for (int i = 0; i < total; i++) {
         for (int a = 0; a < usuarios[i].getCantidadAlbumes(); a++) {
+            Contador::sumar();
             Album &album = usuarios[i].getAlbum(a);
             archivo << i << SEPARADOR << album.getNombre() << SEPARADOR << album.getPrivacidad()
                     << SEPARADOR << album.getCantidadFotos() << "\n";
             for (int f = 0; f < album.getCantidadFotos(); f++) {
+                Contador::sumar();
                 Foto &foto = album[f];
                 archivo << foto.getNombre() << SEPARADOR << foto.getFechaCaptura() << SEPARADOR
                         << foto.getTamanio() << SEPARADOR << foto.getLikes() << "\n";
@@ -328,6 +341,8 @@ void UdeABook::guardarDatos()
 
     archivo.close();
     cout << "Datos guardados en " << archivoDatos << endl;
+    cout << "Componente externo: <fstream>" << endl;
+    mostrarConsumoRecursos(sizeof(total));
 }
 
 
@@ -362,8 +377,10 @@ void UdeABook::ingresar()
     cout << "Contrasena: ";
     string clave = leerLinea();
 
+    Contador::reiniciar();
     if (!iniciarSesion(nombre, clave)) {
         cout << "Usuario o contrasena incorrectos" << endl;
+        mostrarConsumoRecursos(sizeof(nombre) + sizeof(clave));
         return;
     }
 
@@ -392,6 +409,7 @@ int UdeABook::calcularPeso(int comunes) const
 bool UdeABook::fueMostrado(int indice) const
 {
     for (int i = 0; i < fotosMostradas.getCantidad(); i++) {
+        Contador::sumar();
         if (fotosMostradas[i] == indice) {
             return true;
         }
@@ -402,6 +420,7 @@ bool UdeABook::fueMostrado(int indice) const
 // Elige 3 amigos al azar según su peso y muestra sus fotos de perfil
 // Cada elegido queda con peso 0 para que no se repita
 // En la actualización los 3 primeros también quedan en 0
+// Al final muestra el consumo de recursos
 void UdeABook::mostrarMejoresAmigos(bool actualizar)
 {
     int total = usuarios.getCantidad();
@@ -409,6 +428,7 @@ void UdeABook::mostrarMejoresAmigos(bool actualizar)
 
     if (cantidadAmigos == 0) {
         cout << "Aun no tienes amigos para mostrar sus fotos" << endl;
+        mostrarConsumoRecursos(sizeof(total) + sizeof(cantidadAmigos));
         return;
     }
 
@@ -419,6 +439,7 @@ void UdeABook::mostrarMejoresAmigos(bool actualizar)
     int sumaPesos = 0;
     int k = 0;
     for (int j = 0; j < total; j++) {
+        Contador::sumar();
         if (amistades(usuarioActual, j)) {
             amigos[k] = j;
             comunes[k] = amistades.contarAmigosEnComun(usuarioActual, j);
@@ -441,6 +462,7 @@ void UdeABook::mostrarMejoresAmigos(bool actualizar)
     int elegido = 0;
     int acumulado = 0;
     while (elegidas < FOTOS_AMIGOS && sumaPesos > 0) {
+        Contador::sumar();
 
         // Número al azar entre 0 y sumaPesos - 1
         uniform_int_distribution<int> azar(0, sumaPesos - 1);
@@ -450,6 +472,7 @@ void UdeABook::mostrarMejoresAmigos(bool actualizar)
         elegido = 0;
         acumulado = pesos[0];
         while (numero >= acumulado) {
+            Contador::sumar();
             elegido++;
             acumulado = acumulado + pesos[elegido];
         }
@@ -471,6 +494,10 @@ void UdeABook::mostrarMejoresAmigos(bool actualizar)
     } else if (elegidas < FOTOS_AMIGOS) {
         cout << "No hay mas amigos para completar las " << FOTOS_AMIGOS << " fotos" << endl;
     }
+
+    // Memoria de los tres arreglos locales
+    cout << "Componente externo: <random>" << endl;
+    mostrarConsumoRecursos(cantidadAmigos * sizeof(int) * 3);
 
     delete[] amigos;
     delete[] comunes;
@@ -503,6 +530,7 @@ void UdeABook::mostrarMenu()
             if (fotosActualizadas) {
                 cout << "Las fotos ya se actualizaron una vez" << endl;
             } else {
+                Contador::reiniciar();
                 fotosActualizadas = true;
                 mostrarMejoresAmigos(true);
             }
@@ -511,10 +539,12 @@ void UdeABook::mostrarMenu()
         } else if (opcion == 3) {
             cout << "Nombre de usuario del amigo: ";
             string nombre = leerLinea();
+            Contador::reiniciar();
             visitarPerfil(nombre);
         } else if (opcion == 4) {
             cout << "Cuantas sugerencias quieres ver (1 a 20): ";
             int k = leerEntero();
+            Contador::reiniciar();
             verSugerencias(k);
         } else if (opcion == 5) {
             administrarMensajes();
@@ -540,8 +570,10 @@ void UdeABook::administrarAmistades()
         if (opcion == 1) {
             cout << "Nombre de usuario: ";
             string nombre = leerLinea();
+            Contador::reiniciar();
             enviarSolicitud(nombre);
         } else if (opcion == 2) {
+            Contador::reiniciar();
             gestionarSolicitudes();
         } else if (opcion != 0) {
             cout << "Opcion no valida" << endl;
@@ -565,8 +597,10 @@ void UdeABook::administrarMensajes()
         if (opcion == 1) {
             cout << "Nombre de usuario del amigo: ";
             string nombre = leerLinea();
+            Contador::reiniciar();
             enviarMensaje(nombre);
         } else if (opcion == 2) {
+            Contador::reiniciar();
             leerNuevosMensajes();
         } else if (opcion == 3) {
             Fecha inicio;
@@ -576,6 +610,7 @@ void UdeABook::administrarMensajes()
             cout << "Fecha de fin (dd/mm/aaaa): ";
             bool finValido = fin.leerTexto(leerLinea());
             if (inicioValido && finValido) {
+                Contador::reiniciar();
                 buscarMensajes(inicio, fin);
             } else {
                 cout << "Fecha no valida, usa el formato dd/mm/aaaa" << endl;
@@ -594,6 +629,7 @@ void UdeABook::enviarSolicitud(const string &nombre)
 {
     int destino = buscarUsuario(nombre);
     procesarSolicitud(destino);
+    mostrarConsumoRecursos(sizeof(destino));
 }
 
 // Valida y envía la solicitud
@@ -637,11 +673,13 @@ void UdeABook::gestionarSolicitudes()
 
     if (cantidad == 0) {
         cout << "No tienes solicitudes de amistad pendientes" << endl;
+        mostrarConsumoRecursos(sizeof(cantidad));
         return;
     }
 
     cout << "Solicitudes recibidas" << endl;
     for (int i = 0; i < cantidad; i++) {
+        Contador::sumar();
         cout << i + 1 << ". " << usuarios[yo.getSolicitud(i)].getNombreUsuario() << endl;
     }
 
@@ -665,6 +703,8 @@ void UdeABook::gestionarSolicitudes()
     } else if (numero != 0) {
         cout << "Numero no valido" << endl;
     }
+
+    mostrarConsumoRecursos(sizeof(cantidad) + sizeof(numero));
 }
 
 
@@ -678,10 +718,12 @@ void UdeABook::visitarPerfil(const string &nombre)
 
     if (amigo == NO_ENCONTRADO) {
         cout << "Ese usuario no existe" << endl;
+        mostrarConsumoRecursos(sizeof(amigo));
         return;
     }
     if (!amistades(usuarioActual, amigo)) {
         cout << "Solo puedes visitar el perfil de tus amigos" << endl;
+        mostrarConsumoRecursos(sizeof(amigo));
         return;
     }
 
@@ -693,6 +735,7 @@ void UdeABook::visitarPerfil(const string &nombre)
     int *visibles = new int[totalAlbumes];
     int cantidadVisibles = 0;
     for (int i = 0; i < totalAlbumes; i++) {
+        Contador::sumar();
         if (perfil.getAlbum(i).esVisible(true)) {
             visibles[cantidadVisibles] = i;
             cantidadVisibles++;
@@ -708,6 +751,7 @@ void UdeABook::visitarPerfil(const string &nombre)
     while (opcion != 0) {
         cout << endl << "Albumes de " << perfil.getNombreUsuario() << endl;
         for (int i = 0; i < cantidadVisibles; i++) {
+            Contador::sumar();
             cout << i + 1 << ". " << perfil.getAlbum(visibles[i]) << endl;
         }
         cout << "Numero del album (0 para salir): ";
@@ -720,6 +764,8 @@ void UdeABook::visitarPerfil(const string &nombre)
         }
     }
 
+    // Memoria del arreglo local de álbumes visibles
+    mostrarConsumoRecursos(totalAlbumes * sizeof(int));
     delete[] visibles;
 }
 
@@ -732,19 +778,23 @@ void UdeABook::verSugerencias(int k)
 {
     if (k < K_MINIMO || k > K_MAXIMO) {
         cout << "K debe estar entre " << K_MINIMO << " y " << K_MAXIMO << endl;
+        mostrarConsumoRecursos(sizeof(k));
         return;
     }
 
     int total = usuarios.getCantidad();
     int *comunes = new int[total];
     for (int j = 0; j < total; j++) {
+        Contador::sumar();
         comunes[j] = 0;
     }
 
     // Por cada amigo se recorre su fila y se suma 1 a sus amigos que aún no son míos
     for (int amigo = 0; amigo < total; amigo++) {
+        Contador::sumar();
         if (amistades(usuarioActual, amigo)) {
             for (int j = 0; j < total; j++) {
+                Contador::sumar();
                 if (amistades(amigo, j) && j != usuarioActual && !amistades(usuarioActual, j)) {
                     comunes[j]++;
                 }
@@ -756,6 +806,7 @@ void UdeABook::verSugerencias(int k)
     int *mejores = new int[k];
     int cantidadMejores = 0;
     for (int j = 0; j < total; j++) {
+        Contador::sumar();
         bool entra = false;
         if (comunes[j] > 0) {
             if (cantidadMejores < k) {
@@ -773,6 +824,7 @@ void UdeABook::verSugerencias(int k)
             }
             // Corre a la derecha los que tienen menos
             while (posicion > 0 && comunes[j] > comunes[mejores[posicion - 1]]) {
+                Contador::sumar();
                 mejores[posicion] = mejores[posicion - 1];
                 posicion--;
             }
@@ -789,6 +841,7 @@ void UdeABook::verSugerencias(int k)
     } else {
         cout << endl << "Sugerencias de amistad" << endl;
         for (int i = 0; i < cantidadMejores; i++) {
+            Contador::sumar();
             int candidato = mejores[i];
             cout << i + 1 << ". " << usuarios[candidato].getNombreUsuario() << " - " << comunes[candidato] << " amigos en comun";
             if (usuarios[candidato].tieneSolicitudDe(usuarioActual)) {
@@ -808,6 +861,8 @@ void UdeABook::verSugerencias(int k)
         }
     }
 
+    // Memoria de los dos arreglos locales
+    mostrarConsumoRecursos(total * sizeof(int) + k * sizeof(int));
     delete[] comunes;
     delete[] mejores;
 }
@@ -822,10 +877,12 @@ void UdeABook::enviarMensaje(const string &nombreAmigo)
 
     if (amigo == NO_ENCONTRADO) {
         cout << "Ese usuario no existe" << endl;
+        mostrarConsumoRecursos(sizeof(amigo));
         return;
     }
     if (!amistades(usuarioActual, amigo)) {
         cout << "Solo puedes enviar mensajes a tus amigos" << endl;
+        mostrarConsumoRecursos(sizeof(amigo));
         return;
     }
 
@@ -837,6 +894,7 @@ void UdeABook::enviarMensaje(const string &nombreAmigo)
     bool tieneLetras = false;
     int i = 0;
     while (i < largo && !tieneLetras) {
+        Contador::sumar();
         if (texto[i] != ' ') {
             tieneLetras = true;
         }
@@ -852,7 +910,10 @@ void UdeABook::enviarMensaje(const string &nombreAmigo)
         usuarios[usuarioActual].agregarEnviado(mensaje);
         usuarios[amigo].agregarRecibido(mensaje);
         cout << "Mensaje enviado a " << usuarios[amigo].getNombreUsuario() << " el " << mensaje.getFechaEnvio() << endl;
+        cout << "Componente externo: <chrono>" << endl;
     }
+
+    mostrarConsumoRecursos(sizeof(texto) + sizeof(largo));
 }
 
 // Funcionalidad VI b, leer nuevos mensajes
@@ -865,6 +926,7 @@ void UdeABook::leerNuevosMensajes()
     int emisor = 0;
 
     for (int i = 0; i < cantidad; i++) {
+        Contador::sumar();
         Mensaje &mensaje = yo.getRecibido(i);
         if (!mensaje.getLeido()) {
             cout << endl << mensaje << endl;
@@ -882,6 +944,8 @@ void UdeABook::leerNuevosMensajes()
     } else {
         cout << endl << "Leiste " << nuevos << " mensajes nuevos" << endl;
     }
+
+    mostrarConsumoRecursos(sizeof(cantidad) + sizeof(nuevos));
 }
 
 // Funcionalidad VI c, buscar mensajes recibidos por rango de fecha
@@ -896,10 +960,12 @@ void UdeABook::buscarMensajes(const Fecha &inicio, const Fecha &fin)
         encontrados = usuarios[usuarioActual].buscarMensajes(inicio, fin);
         cout << "Total encontrados: " << encontrados << endl;
     }
+
+    mostrarConsumoRecursos(sizeof(inicio) + sizeof(fin));
 }
 
 
-// Búsqueda
+// Búsqueda y medición
 
 // Búsqueda binaria, los usuarios están en orden alfabético
 int UdeABook::buscarUsuario(const string &nombre) const
@@ -907,6 +973,7 @@ int UdeABook::buscarUsuario(const string &nombre) const
     int izquierda = 0;
     int derecha = usuarios.getCantidad() - 1;
     while (izquierda <= derecha) {
+        Contador::sumar();
         int mitad = (izquierda + derecha) / 2;
         const string &actual = usuarios[mitad].getNombreUsuario();
         if (actual == nombre) {
@@ -924,6 +991,26 @@ int UdeABook::buscarUsuario(const string &nombre) const
 bool UdeABook::esIndiceValido(int indice) const
 {
     return indice >= 0 && indice < usuarios.getCantidad() && indice < amistades.getTamanio();
+}
+
+// Suma con sizeof la memoria de todas las estructuras
+long UdeABook::calcularMemoria() const
+{
+    long memoria = sizeof(UdeABook) + amistades.memoriaUsada() + usuarios.memoriaUsada();
+    for (int i = 0; i < usuarios.getCantidad(); i++) {
+        memoria = memoria + usuarios[i].memoriaUsada();
+    }
+    return memoria;
+}
+
+// Muestra las iteraciones y la memoria al terminar una funcionalidad
+// Recibe la memoria de las variables locales de esa funcionalidad
+void UdeABook::mostrarConsumoRecursos(long memoriaLocal) const
+{
+    Contador contador;
+    cout << endl << "--- Consumo de recursos ---" << endl;
+    cout << contador << endl;
+    cout << "Memoria: " << calcularMemoria() + memoriaLocal << " bytes" << endl;
 }
 
 
@@ -955,6 +1042,7 @@ int UdeABook::convertirEntero(const string &texto) const
 
     int numero = 0;
     for (int i = 0; i < largo; i++) {
+        Contador::sumar();
         if (texto[i] < '0' || texto[i] > '9') {
             return ENTRADA_INVALIDA;
         }
